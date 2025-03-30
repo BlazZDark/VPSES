@@ -1,7 +1,6 @@
 -- DISCORD.GG/CV01
 getgenv().AutoMail = {
     ['Items'] = {
-        ['Emerald Gem'] = { Class = "Misc", Amount = 250 },
         ['Diamonds'] = { Class = "Currency", Amount = 105000000 },
     },
     ['Loop Interval'] = 60,
