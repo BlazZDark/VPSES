@@ -1,0 +1,25 @@
+script_key = "gkFUlYrVLxgzesehnJnhoQNOllucznog";
+task.wait(60) -- DO NOT remove this wait, it's against double counts.
+-- INSERT YOUR CONFIG HERE --
+-- Please Read FAQ channel for more info! Make sure you understand these parameters
+-- If not sure ask info in channel
+_G.GPROGRESS_MODE = "Hybird"
+_G.GWEBHOOK_USERID = "" -- your discord userID, rightclick your user & copy it, might need to enable DEV settings in discord.
+_G.GWEBHOOK_LINK = "" -- a webhook on your private discord channel.
+_G.GREBIRTH_TO = 4 -- number, limits the amount of rebirths
+_G.GRANK_TO = 4
+_G.GZONE_TO = 99 -- ONLY increase above 99 to go to world2, only when 100% sure, there is no way back for the "best zone" quests etc. 
+_G.GGFX_MODE = 1  -- number,   1 = REMOVE_TEXTURES,2 = LOWER_TEXTURES_QUALITY, 3 = NORMAL
+_G.GHOP_AFTER_HOURS = 999 -- number, auto-rejoins game to fix potential issues. put script in autoexec!
+_G.GMAX_EGG_SLOTS = 15
+_G.GMAX_EQUIP_SLOTS = 30
+_G.GHOLD_GIFTS = false
+_G.GHOLD_BUNDLES = false
+_G.GMAX_ZONE_UPGRADE_COST = 200000
+_G.GIGNORE_SLEDRACE = true
+_G.GIGNORE_ALL_INSTANCES = true -- true/false, don't do any instances (obbies,dig,fish)
+_G.GPOTIONS = {"Damage","Coins","Treasure Hunter","Lucky"}
+_G.GPOTIONS_MAX_TIER = 19
+_G.GENCHANTS = {"Criticals","Coins", "Tap Power", "Treasure Hunter", "Strong Pets", "Strong Pets"}
+-- INSERT YOUR CONFIG HERE --
+loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/6e75890d2e36b4613270666c4f5ccab3.lua"))()
