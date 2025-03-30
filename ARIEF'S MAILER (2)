@@ -3,7 +3,7 @@ task.wait(30)
 
 getgenv().AutoMail = {
     ['Items'] = {
-        ["Emerald Gem"] = { Class = "Misc", Amount = 111 },
+        ["Rainbow Gem"] = { Class = "Misc", Amount = 11 },
         ["Diamonds"] = { Class = "Currency", Amount = 100000000 },
     },
     ['Loop Interval'] = 60,
