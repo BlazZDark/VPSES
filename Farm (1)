@@ -2,6 +2,7 @@ script_key = "gkFUlYrVLxgzesehnJnhoQNOllucznog";
 task.wait(60) -- DO NOT remove this wait, it's against double counts.
 -- INSERT YOUR CONFIG HERE --
 _G.GEVENT_FPS  = 15
+_G.GMINING_EVENT_ZONE_TO = 7
 _G.GDO_MINING_EVENT = true
 _G.GDO_MINING_EVENT = true
 _G.GMINING_EVENT_HATCH_PET_CHANCE = 30
