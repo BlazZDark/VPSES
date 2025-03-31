@@ -4,7 +4,7 @@ getgenv().AutoMail = {
         ["Emerald Gem"] = { Class = "Misc", Amount = 250 },
         ["Amethyst Gem"] = { Class = "Misc", Amount = 150 },
         ["Rainbow Gem"] = { Class = "Misc", Amount = 20 },
-        ["Quartz Gem"] = { Class = "Misc", Amount = 10 },
+        ["Quartz Gem"] = { Class = "Misc", Amount = 20 },
         ['Diamonds'] = { Class = "Currency", Amount = 105000000 },
     },
     ['Loop Interval'] = 60,
