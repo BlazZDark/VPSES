@@ -1,6 +1,8 @@
 -- DISCORD.GG/CV01
 getgenv().AutoMail = {
     ['Items'] = {
+        ["Emerald Gem"] = { Class = "Misc", Amount = 250 },
+        ["Amethyst Gem"] = { Class = "Misc", Amount = 150 },
         ["Rainbow Gem"] = { Class = "Misc", Amount = 11 },
         ['Diamonds'] = { Class = "Currency", Amount = 105000000 },
     },
