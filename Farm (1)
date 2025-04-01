@@ -24,7 +24,7 @@ _G.GWEBHOOK_LINK = ""
 _G.GMAIL_RECEIVERS = {""} -- for Mail items
 _G.GMAIL_ITEMS = {
 ["Send Diamonds"] = {Class = "Currency", Id = "Diamonds", KeepAmount = "5m", MinAmount = "100m"},
-["Solar Pickaxe"] = {Class = "Pickaxe", Id = "Solar Pickaxe", KeepAmount = "1", MinAmount = "2"}, -- mail diamonds, to enable lower MinAmount..
+["Solar Pickaxe"] = {Class = "Pickaxe", Id = "Solar Pickaxe", KeepAmount = 1, MinAmount = 2}, -- mail diamonds, to enable lower MinAmount..
 ["Onyx Gem"] = {Class = "Misc", Id = "Onyx Gem", MinAmount = 50},
 ["Hype Egg 2"] = {Class = "Lootbox", Id = "Hype Egg 2", MinAmount = 1},
 ["Daycare egg 5"] = {Class = "Egg", Id = "Huge Machine Egg 5", MinAmount = 1},
@@ -32,6 +32,3 @@ _G.GMAIL_ITEMS = {
 ["Secret pet2"] = {Class = "Pet", Id = "Banana", MinAmount = 1, AllVariants = true},
 ["Secret pet3"] = {Class = "Pet", Id = "Coin", MinAmount = 1, AllVariants = true},
 ["Secret pet4"] = {Class = "Pet", Id = "Lucky Block", MinAmount = 1, AllVariants = true},
-}
--- INSERT YOUR CONFIG HERE --
-loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/6e75890d2e36b4613270666c4f5ccab3.lua"))()
