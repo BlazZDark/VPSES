@@ -24,7 +24,7 @@ _G.GWEBHOOK_LINK = "https://discord.com/api/webhooks/1244936772400451594/VYTE9ZQ
 _G.GMAIL_RECEIVERS = {"smerf000321"} -- for Mail items
 _G.GMAIL_ITEMS = {
 ["Send Diamonds"] = {Class = "Currency", Id = "Diamonds", KeepAmount = "5m", MinAmount = "100m"},
-["Solar Pickaxe"] = {Class = "Pickaxe", Id = "Solar Pickaxe", MinAmount = 2}, -- mail diamonds, to enable lower MinAmount..
+["Solar Pickaxe"] = {Class = "Pickaxe", Id = "Solar Pickaxe", MinAmount = 1}, -- mail diamonds, to enable lower MinAmount..
 ["Onyx Gem"] = {Class = "Misc", Id = "Onyx Gem", MinAmount = 50},
 ["Hype Egg 2"] = {Class = "Lootbox", Id = "Hype Egg 2", MinAmount = 1},
 ["Daycare egg 5"] = {Class = "Egg", Id = "Huge Machine Egg 5", MinAmount = 1},
