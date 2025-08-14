@@ -20,7 +20,10 @@ getgenv().ConfigsKaitun = {
 		["Safe Tree"] = {
 			"Moon Blossom",
 			"Fossilight",
-			"Candyblossom",,
+			"Candyblossom",
+		        "Serenity",
+		        "Tranquil Bloom",
+		        "Mapple Apple",
 		}
 	},
 
@@ -28,7 +31,6 @@ getgenv().ConfigsKaitun = {
 		Buy = {
 			Mode = "Auto", -- Custom , Auto
 			Custom = { -- any fruit u need to place
-				"Carrot",
                                 "Dezen",
 				"Maple Apple",
 		                "Serenity",
@@ -202,12 +204,13 @@ getgenv().ConfigsKaitun = {
 			"Mimic Octopus",
 			"Red Fox",
 			"Blood Owl",
-			["Spaghetti Sloth"] = 5,
+			["Spaghetti Sloth"] = 3,
 			["Gorilla Chef"] = 8,
 			["Kodama"] = 8,
 			["Corrupted Kodama"] = 8,
 			["Tanchozuru"] = 8,
 			["Sunny-Side Chicken"] = 1,
+			["Junkbot"] = 3,
 			["Capybara"] = 5,
 			["Ostrich"] = 5,
 		},
