@@ -20,10 +20,7 @@ getgenv().ConfigsKaitun = {
 		["Safe Tree"] = {
 			"Moon Blossom",
 			"Fossilight",
-			"Candyblossom",
-		        "Serenity",
-		        "Tranquil Bloom",
-		        "Mapple Apple",
+			"Candyblossom",,
 		}
 	},
 
@@ -217,7 +214,7 @@ getgenv().ConfigsKaitun = {
 	},
 
 	Webhook = {
-		UrlPet = "https://discord.com/api/webhooks/1244936772400451594/VYTE9ZQ63SQzpd2f3AL3eQWNcQsmB0oxKLlkYeuO3taFZ5ZALNLBaAY-ph_8xCbU1_wq",
+		UrlPet = "https://discord.com/api/webhooks/1405569836662263848/PZVCCbR9Uge5yZrHbdKwJaey_WwYmZe8_7DM9GLSIgvNByNNFSEPDTFyoQBK3fWru2k9",
 		UrlSeed = "xxx",
 		PcName = "AKBAR",
 
