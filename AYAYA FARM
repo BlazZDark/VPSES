@@ -21,9 +21,6 @@ getgenv().ConfigsKaitun = {
 			"Moon Blossom",
 			"Fossilight",
 			"Candyblossom",
-		        "Serenity",
-		        "Tranquil Bloom",
-		        "Mapple Apple",
 		}
 	},
 
@@ -31,6 +28,7 @@ getgenv().ConfigsKaitun = {
 		Buy = {
 			Mode = "Auto", -- Custom , Auto
 			Custom = { -- any fruit u need to place
+				"Carrot",
                                 "Dezen",
 				"Maple Apple",
 		                "Serenity",
@@ -58,9 +56,6 @@ getgenv().ConfigsKaitun = {
 				"Carrot"
 			},
 			Lock = {
-				"Maple Apple",
-		                "Serenity",
-		                "Tranquil Bloom",
 				"Sunflower",
 				"Dragon Pepper",
 				"Elephant Ears",
@@ -68,14 +63,10 @@ getgenv().ConfigsKaitun = {
 				"Easter Egg",
 				"Moon Mango",
 				"Bone Blossom",
+			        "Candyblossom",
 				"Fossilight",
                                 "Monoblooma",
                                 "Taro Flower",
-                                "Zen Rocks",
-                                "Hinomai",
-                                "Soft Sunshine",
-                                "Zenflare",
-                                "Dezen",
 			}
 		}
 	},
@@ -204,13 +195,12 @@ getgenv().ConfigsKaitun = {
 			"Mimic Octopus",
 			"Red Fox",
 			"Blood Owl",
-			["Spaghetti Sloth"] = 3,
+			["Spaghetti Sloth"] = 5,
 			["Gorilla Chef"] = 8,
 			["Kodama"] = 8,
 			["Corrupted Kodama"] = 8,
 			["Tanchozuru"] = 8,
 			["Sunny-Side Chicken"] = 1,
-			["Junkbot"] = 3,
 			["Capybara"] = 5,
 			["Ostrich"] = 5,
 		},
