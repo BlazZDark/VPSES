@@ -163,11 +163,11 @@ getgenv().ConfigsKaitun = {
 		["Start Delete Pet At"] = 40,
 		["Upgrade Slot"] = {
 			["Pet"] = {
-				["Starfish"] = { 2, 75, true }, -- the "true" on the last is auto equip (use for like only need to use for upgrade pet)
+				["Starfish"] = { 8, 75, 1, true }, -- the "true" on the last is auto equip (use for like only need to use for upgrade pet)
 			},
 			["Limit Upgrade"] = 5, -- max is 5 (more than or lower than 1 will do nothing)
 			["Equip When Done"] = {
-				["Chef Gorilla"] = { 8, 100, 1 },
+				["Starfish"] = { 8, 75, 1 },
 			},
 		},
 		Favorite_LockedPet = false,
@@ -195,6 +195,7 @@ getgenv().ConfigsKaitun = {
 			"Mimic Octopus",
 			"Red Fox",
 			"Blood Owl",
+			["Starfish"] = 16,
 			["Spaghetti Sloth"] = 5,
 			["Gorilla Chef"] = 8,
 			["Kodama"] = 8,
