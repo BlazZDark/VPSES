@@ -139,7 +139,7 @@ getgenv().ConfigsKaitun = {
 			},
 			["Limit Upgrade"] = 5, -- max is 5 (more than or lower than 1 will do nothing)
 			["Equip When Done"] = {
-				["Starfish"] = { 8, 75, 2 }, -- 5 on the first mean equip only 5 | pet , 100 mean equip only level pet lower than 100 | the one on the last is priority it will ues first if possible 
+				["Starfish"] = { 8, 75, 1 }, -- 5 on the first mean equip only 5 | pet , 100 mean equip only level pet lower than 100 | the one on the last is priority it will ues first if possible 
 			},
 		},
 		Unfavorite_AllPet = false,
@@ -173,9 +173,6 @@ getgenv().ConfigsKaitun = {
 			["Starfish"] = 10,
 			["Spaghetti Sloth"] = 5,
 			["Gorilla Chef"] = 8,
-			["Kodama"] = 8,
-			["Corrupted Kodama"] = 8,
-			["Tanchozuru"] = 8,
 			["Sunny-Side Chicken"] = 1,
 			["Capybara"] = 5,
 			["Ostrich"] = 5,
@@ -225,3 +222,6 @@ getgenv().ConfigsKaitun = {
 		}
 	},
 }
+
+
+loadstring(game:HttpGet('https://raw.githubusercontent.com/Real-Aya/Loader/main/Init.lua'))()
