@@ -42,7 +42,7 @@ getgenv().gagConfig = {
     KEEP_PETS_WEIGHT = 4,
     KEEP_PETS_AGE = 75,
 
-    EQUIP_PETS = { ["Starfish"] = 3, ["Dairy Cow"]= 2, "Sunny-Side Chicken" },
+    EQUIP_PETS = { ["Dairy Cow"]= 2, ["Starfish"] = 5, "Sunny-Side Chicken" },
     USE_PETS_FOR_UPGRADE_SLOT = { "Starfish" },
     REMOVE_PET_MAX_UPGRADE = { },
     BUY_GEAR_SHOP = { "Grandmaster Sprinkler", "Master Sprinkler", "Godly Sprinkler", "Advanced Sprinkler", "Basic Sprinkler", "Medium Toy", "Medium Treat",
