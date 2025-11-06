@@ -9,7 +9,7 @@ _G.FishItConfig = _G.FishItConfig or {
     },
     ["Selling"] = {
         ["Auto Sell"] = true,
-        ["Auto Sell Threshold"] = "Mythic",
+        ["Auto Sell Threshold"] = "Legendary",
     },
     ["Doing Quest"] = {
         ["Auto Ghostfinn Rod"] = true,
@@ -23,8 +23,8 @@ _G.FishItConfig = _G.FishItConfig or {
         ["Minimum Rod"] = "Astral Rod",
     },
     ["WebHook"] = {
-        ["Link Webhook"] = "https://discord.com/api/webhooks/1429832302799622316/CQflqZXsB2n6oXDu6tFCX8OCdH6A1-VzHd_qAu-e3uquhUnQBvdDbFnESBYYhZ_9IU45",
-        ["Auto Sending"] = false,
+        ["Link Webhook"] = "https://discord.com/api/webhooks/1433619088588017684/02wMrYk7vdbmgEz46dCdDiJrj9QONW7SKqAibBQdwO__JaFuRycX_6L-nmLSpJd_-Xb9",
+        ["Auto Sending"] = true,
         ["Category"] = {"SECRET"},   
     },
     ["Weather"] = {
@@ -64,7 +64,7 @@ _G.FishItConfig = _G.FishItConfig or {
     },
     ["Rod List"] = {
         ["Auto Buying"] = true,
-        ["Auto Equip"] = true,a
+        ["Auto Equip"] = true,
         ["Buy List"] = {
             "Grass Rod",
             "Midnight Rod",
