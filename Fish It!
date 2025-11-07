@@ -17,6 +17,8 @@ _G.FishItConfig = _G.FishItConfig or {
         ["Allowed Sacrifice"] = {
             "Blob Shark",
             "Ghost Shark",
+            "Giant Squid",
+            "Frostborn Shark",
         },
         ["FARM_LOC_SECRET_SACRIFICE"] = "Ocean",
 
