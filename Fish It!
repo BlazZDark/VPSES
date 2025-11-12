@@ -1,6 +1,3 @@
-task.wait(20) 
-
-
 task.spawn(function() 
 getgenv().fpslock = 5
 getgenv().whitescreen = true
