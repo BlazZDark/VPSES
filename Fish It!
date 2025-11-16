@@ -1,10 +1,4 @@
 task.spawn(function() 
-getgenv().fpslock = 5
-getgenv().whitescreen = false
-loadstring(game:HttpGet("https://raw.githubusercontent.com/vuthaison1308/vuthaison1308/refs/heads/main/fpslock_whitecreen.lua"))()
-end)
-
-task.spawn(function() 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/FnDXueyi/list/refs/heads/main/game"))()
 end)
 
