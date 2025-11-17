@@ -54,7 +54,6 @@ _G.FishItConfig = _G.FishItConfig or {
             "Megalodon Hunt",
             "Ghost Shark Hunt",
             "Shark Hunt",
-            "Worm Hunt",
             "Black Hole",
             "Shocked",
             "Ghost Worm",
