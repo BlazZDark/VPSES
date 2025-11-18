@@ -41,10 +41,12 @@ _G.FishItConfig = _G.FishItConfig or {
         ["Category"] = {"SECRET"},   
     },
     ["Weather"] = {
-        ["Auto Buying"] = false,
+        ["Auto Buying"] = true,
         ["Minimum Rod"] = "Element Rod",
         ["Weather List"] = {
             "Shark Hunt",
+            "Cloudy",
+            "Storm",
         },
     },
     ["Event"] = {
