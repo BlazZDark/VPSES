@@ -7,10 +7,10 @@ task.wait(5)
 
 _G.FishItConfig = _G.FishItConfig or {
     ["Fishing"] = {
-        ["Auto Perfect"] = true, -- Set false if u need faster fishing
+        ["Auto Perfect"] = true,
     },
     ["Auto Trade"] = {
-        ["Enabled"] = true,
+        ["Enabled"] = false,
         ["Whitelist Username"] = {"PALINGONTOT"},
         ["Category Fish"] = { -- Only Select one, fill in the fish category or fish name
             "Secret",
@@ -47,7 +47,9 @@ _G.FishItConfig = _G.FishItConfig or {
     ["WebHook"] = {
         ["Link Webhook"] = "https://discord.com/api/webhooks/1433619088588017684/02wMrYk7vdbmgEz46dCdDiJrj9QONW7SKqAibBQdwO__JaFuRycX_6L-nmLSpJd_-Xb9",
         ["Auto Sending"] = true,
-        ["Category"] = {"SECRET"},   
+        ["Category"] = {"Secret"},
+
+        ["Link Webhook Quest Complete"] = "https://discord.com/api/webhooks/1442239726894452808/V4bES2hebdBXO11c66AHb-BqrMaSf0iaO0KiL4scsgL0E-VXjACelgw6iICCNOjCWdgx",
     },
     ["Weather"] = {
         ["Auto Buying"] = true,
@@ -90,7 +92,6 @@ _G.FishItConfig = _G.FishItConfig or {
     },
     ["Rod List"] = {
         ["Auto Buying"] = true,
-        ["Auto Equip"] = true,
         ["Buy List"] = {
             "Grass Rod",
             "Midnight Rod",
@@ -104,10 +105,9 @@ _G.FishItConfig = _G.FishItConfig or {
         },
     },
 
-    -- Recommended settings [ Do not Change ]
     ["ExtremeFpsBoost"] = true,
-    ["UltimatePerformance"] = true,
-    ["3DRender"] = true,
+    ["UltimatePerformance"] = false,
+    ["Disable3DRender"] = true,
     ["AutoRemovePlayer"] = true,
 
     ["AutoReconnect"] = false,
