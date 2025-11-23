@@ -78,14 +78,14 @@ _G.FishItConfig = _G.FishItConfig or {
             "Prismatic I",
         },
     },
-    ["Bobber"] = {
+    ["Bait List"] = {
         ["Auto Buying"] = true,
-        ["Auto Equip"] = true,
         ["Buy List"] = {
             "Midnight Bait",
             "Chroma Bait",
             "Corrupt Bait",
             "Aether Bait",
+            "Singularity Bait",
         },
     },
     ["Rod List"] = {
@@ -109,6 +109,9 @@ _G.FishItConfig = _G.FishItConfig or {
     ["UltimatePerformance"] = true,
     ["3DRender"] = true,
     ["AutoRemovePlayer"] = true,
+
+    ["AutoReconnect"] = false,
+    ["HideGUI"] = false,
 }
 
 script_key="6DC10E67351FC38A14323B1B03A5C335";
