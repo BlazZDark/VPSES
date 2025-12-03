@@ -57,16 +57,18 @@ _G.FishItConfig = _G.FishItConfig or {
     },
     ["Weather"] = {
         ["Auto Buying"] = true,
-        ["Minimum Rod"] = "Element Rod",
+        ["Minimum Rod"] = "Ghostfinn Rod",
         ["Weather List"] = {
             "Cloudy",
             "Storm",
+            "Shark Hunt",
         },
     },
     ["Event"] = {
-        ["Start Farm"] = false,
+        ["Start Farm"] = true,
         ["Minimum Rod"] = "Ghostfinn Rod",
         ["Event List"] = {
+            "Shark Hunt",
             "Black Hole",
             "Shocked",
             "Ghost Worm",
