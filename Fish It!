@@ -78,7 +78,7 @@ _G.FishItConfig = _G.FishItConfig or {
     },
     ["Enchant"] = {
         ["Auto Enchant"] = true,
-        ["Roll Enchant"] = false, -- Roll enchant until get Leprechaun II
+        ["Roll Enchant"] = true, -- Roll enchant until get Leprechaun II
         ["Minimum Rod"] = "Astral Rod",
         ["Enchant List"] = {
             "Leprechaun II",
