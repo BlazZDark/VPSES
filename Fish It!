@@ -61,7 +61,6 @@ _G.FishItConfig = _G.FishItConfig or {
         ["Weather List"] = {
             "Cloudy",
             "Storm",
-            "Shark Hunt",
         },
     },
     ["Event"] = {
