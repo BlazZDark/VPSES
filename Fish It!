@@ -61,14 +61,12 @@ _G.FishItConfig = _G.FishItConfig or {
         ["Weather List"] = {
             "Cloudy",
             "Storm",
-            "Shark Hunt",
         },
     },
     ["Event"] = {
         ["Start Farm"] = true,
         ["Minimum Rod"] = "Ghostfinn Rod",
         ["Event List"] = {
-            "Shark Hunt",
             "Black Hole",
             "Shocked",
             "Ghost Worm",
