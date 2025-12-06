@@ -60,7 +60,12 @@ _G.FishItConfig = _G.FishItConfig or {
 "XxEmmaMagicCookiexX",
 "G0LDEN_Chill2015YT",
 "ChaosDawnSky2022",
-"PlayzLight2004YT"},
+"PlayzLight2004YT",
+"CourtneyDrake93782",
+"PerryDuarte53692",
+"TroyGreen61273",
+"KirstenGibson5061",
+"JasminSchneider19"},
         ["Category Fish"] = { -- Only Select one, fill in the fish category or fish name
             "Secret",
         },
