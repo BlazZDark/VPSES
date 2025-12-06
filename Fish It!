@@ -174,7 +174,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/FnDXueyi/roblog/refs/
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 
-task.wait(600)
+task.wait(900)
 
 repeat
     task.wait()
