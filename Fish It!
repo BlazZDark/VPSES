@@ -5,36 +5,6 @@ end)
 setfpscap(5)
 task.wait(5)
 
-local plr = game:GetService("Players").LocalPlayer
-local gui = plr:WaitForChild("PlayerGui")
-local lbl = gui:WaitForChild("Prompt"):WaitForChild("Blackout"):WaitForChild("Options"):WaitForChild("Yes"):WaitForChild("Label")
-local cam = workspace.CurrentCamera
-
-local function fireBindable()
-    for _, obj in ipairs(getnilinstances()) do
-        if obj:IsA("BindableEvent") then
-            pcall(function() obj:Fire(true) end)
-        end
-    end
-end
-
-lbl:GetPropertyChangedSignal("Text"):Connect(function()
-    if lbl.Text == "Yes" then
-        local cf = cam.CFrame
-        local ct = cam.CameraType
-        
-        cam.CameraType = Enum.CameraType.Scriptable
-        task.wait(2)
-        fireBindable()
-        task.wait(2)
-        
-        cam.CameraType = ct
-        cam.CFrame = cf
-    end
-end)
-
---------------------------------------------------------------------------------------------------------------------------------
-
 _G.FishItConfig = _G.FishItConfig or {
     ["Fishing"] = {
         ["Auto Perfect"] = true,
