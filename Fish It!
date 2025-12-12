@@ -12,6 +12,7 @@ _G.FishItConfig = _G.FishItConfig or {
         ["Fish Name"] = {
             "Sacred Guardian Squid",
         },
+        ["Auto Accept Trade"] = true,
     },
     ["Auto Trade"] = {
         ["Enabled"] = true,
