@@ -152,7 +152,7 @@ _G.FishItConfig = _G.FishItConfig or {
         ["Link Webhook Quest Complete"] = "https://discord.com/api/webhooks/1442239726894452808/V4bES2hebdBXO11c66AHb-BqrMaSf0iaO0KiL4scsgL0E-VXjACelgw6iICCNOjCWdgx",
     },
     ["Weather"] = {
-        ["Auto Buying"] = true,
+        ["Auto Buying"] = false,
         ["Minimum Rod"] = "Ghostfinn Rod",
         ["Weather List"] = {
             "Shark Hunt",
@@ -165,6 +165,7 @@ _G.FishItConfig = _G.FishItConfig or {
         ["Minimum Rod"] = "Ghostfinn Rod",
         ["Event List"] = {
             "Shark Hunt",
+            "Ghost Shark",
             "Black Hole",
             "Shocked",
             "Ghost Worm",
