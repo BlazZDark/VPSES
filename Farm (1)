@@ -1,90 +1,90 @@
--- [[ MODIFIED SCRIPT WITH KEYBIND G ]]
+-- [[ MODIFIED SCRIPT WITH KEYBIND P ]]
 
-[cite_start]task.wait(5) -- [cite: 1]
+[cite_start]task.wait(5) [cite: 1]
 
 -- === CONFIGURATION & WEBHOOK ===
-[cite_start]getgenv().AutoRadioactive = true -- [cite: 1]
-[cite_start]local webhook_url = "https://discord.com/api/webhooks/1433619088588017684/02wMrYk7vdbmgEz46dCdDiJrj9QONW7SKqAibBQdwO__JaFuRycX_6L-nmLSpJd_-Xb9" -- [cite: 1]
-[cite_start]local targetBrainrot = "Galactio Fantasma" -- [cite: 1]
-[cite_start]local targetLevel = 125 -- [cite: 1]
-[cite_start]local targetMutation = "Admin" -- [cite: 1]
-[cite_start]local waitTime = 45.5 * 60 -- [cite: 1]
+[cite_start]getgenv().AutoRadioactive = true [cite: 1]
+[cite_start]local webhook_url = "https://discord.com/api/webhooks/1433619088588017684/02wMrYk7vdbmgEz46dCdDiJrj9QONW7SKqAibBQdwO__JaFuRycX_6L-nmLSpJd_-Xb9" [cite: 1]
+[cite_start]local targetBrainrot = "Galactio Fantasma" [cite: 1]
+[cite_start]local targetLevel = 125 [cite: 1]
+[cite_start]local targetMutation = "Admin" [cite: 1]
+[cite_start]local waitTime = 45.5 * 60 [cite: 1]
 
 -- Services
-[cite_start]local player = game.Players.LocalPlayer -- [cite: 1]
-[cite_start]local RS = game:GetService("ReplicatedStorage") -- [cite: 1]
-[cite_start]local coreGui = game:GetService("CoreGui") -- [cite: 1]
-[cite_start]local HttpService = game:GetService("HttpService") -- [cite: 1]
-local UIS = game:GetService("UserInputService") -- Added for Keybind functionality
+[cite_start]local player = game.Players.LocalPlayer [cite: 1]
+[cite_start]local RS = game:GetService("ReplicatedStorage") [cite: 1]
+[cite_start]local coreGui = game:GetService("CoreGui") [cite: 1]
+[cite_start]local HttpService = game:GetService("HttpService") [cite: 1]
+local UIS = game:GetService("UserInputService") -- Layanan untuk mendeteksi tombol keyboard
 
-[cite_start]local spawnRemote = RS:WaitForChild("Packages"):WaitForChild("Net"):WaitForChild("RF/SpawnMachine.Action") -- [cite: 1]
-[cite_start]local machinePath = workspace:WaitForChild("SpawnMachines"):WaitForChild("Default") -- [cite: 1]
-[cite_start]local targetPosSpawn = Vector3.new(138, 3, 78) -- [cite: 1]
+[cite_start]local spawnRemote = RS:WaitForChild("Packages"):WaitForChild("Net"):WaitForChild("RF/SpawnMachine.Action") [cite: 1]
+[cite_start]local machinePath = workspace:WaitForChild("SpawnMachines"):WaitForChild("Default") [cite: 1]
+[cite_start]local targetPosSpawn = Vector3.new(138, 3, 78) [cite: 1]
 
--- Variable untuk Trigger Manual
+-- Variable untuk Trigger Manual via P
 _G.ForceDupeNow = false
 
 -- === FUNCTIONS ===
 local function sendWebhook(oldC, newC)
     local data = {
-        [cite_start]["content"] = "🚀 **DUPE SUCCESS!**", -- [cite: 2]
+        ["content"] = "🚀 **DUPE SUCCESS!**",
         ["embeds"] = {{
-            [cite_start]["title"] = "Auto Dupe Detection", -- [cite: 2]
-            [cite_start]["color"] = 65280, -- [cite: 2]
+            [cite_start]["title"] = "Auto Dupe Detection", [cite: 2]
+            ["color"] = 65280,
             ["fields"] = {
-                [cite_start]{["name"] = "Item", ["value"] = targetBrainrot .. " (Lvl " .. targetLevel .. ")", ["inline"] = false}, -- [cite: 2]
-                [cite_start]{["name"] = "Mutation", ["value"] = targetMutation, ["inline"] = true}, -- [cite: 2]
-                [cite_start]{["name"] = "Inventory Sebelum", ["value"] = tostring(oldC), ["inline"] = true}, -- [cite: 3]
-                [cite_start]{["name"] = "Inventory Sesudah", ["value"] = tostring(newC), ["inline"] = true}, -- [cite: 3]
-                [cite_start]{["name"] = "Keuntungan", ["value"] = "+" .. tostring(newC - oldC), ["inline"] = true} -- [cite: 3]
+                [cite_start]{["name"] = "Item", ["value"] = targetBrainrot .. " (Lvl " .. targetLevel .. ")", ["inline"] = false}, [cite: 2]
+                [cite_start]{["name"] = "Mutation", ["value"] = targetMutation, ["inline"] = true}, [cite: 2]
+                [cite_start]{["name"] = "Inventory Sebelum", ["value"] = tostring(oldC), ["inline"] = true}, [cite: 3]
+                [cite_start]{["name"] = "Inventory Sesudah", ["value"] = tostring(newC), ["inline"] = true}, [cite: 3]
+                [cite_start]{["name"] = "Keuntungan", ["value"] = "+" .. tostring(newC - oldC), ["inline"] = true} [cite: 3]
             },
-            [cite_start]["footer"] = {["text"] = "Brainrot Manager • " .. os.date("%X")} -- [cite: 4]
+            [cite_start]["footer"] = {["text"] = "Brainrot Manager • " .. os.date("%X")} [cite: 4]
         }}
     }
-    [cite_start]local request = syn and syn.request or http_request or request or HttpPost -- [cite: 4]
+    [cite_start]local request = syn and syn.request or http_request or request or HttpPost [cite: 4]
     if request then
-        [cite_start]request({Url = webhook_url, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = HttpService:JSONEncode(data)}) -- [cite: 4]
+        [cite_start]request({Url = webhook_url, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = HttpService:JSONEncode(data)}) [cite: 4]
     end
 end
 
 local function unequipAll()
-    [cite_start]local char = player.Character -- [cite: 5]
+    [cite_start]local char = player.Character [cite: 5]
     if char then
-        [cite_start]local hum = char:FindFirstChildOfClass("Humanoid") -- [cite: 5]
+        [cite_start]local hum = char:FindFirstChildOfClass("Humanoid") [cite: 5]
         if hum then 
-            [cite_start]hum:UnequipTools() -- [cite: 5]
-            [cite_start]print("Safety Unequip: Semua item dilepas ke backpack.") -- [cite: 5]
+            [cite_start]hum:UnequipTools() [cite: 5]
+            [cite_start]print("Safety Unequip: Semua item dilepas ke backpack.") [cite: 5]
         end
     end
 end
 
 local function setFreeze(status)
-    [cite_start]local char = player.Character -- [cite: 5]
+    [cite_start]local char = player.Character [cite: 5]
     if char and char:FindFirstChild("HumanoidRootPart") then
-        [cite_start]char.HumanoidRootPart.Anchored = status -- [cite: 5]
+        [cite_start]char.HumanoidRootPart.Anchored = status [cite: 5]
     end
 end
 
 local function countTargetInventory()
-    [cite_start]local total = 0 -- [cite: 5]
-    [cite_start]local locations = {player.Backpack:GetChildren(), (player.Character and player.Character:GetChildren() or {})} -- [cite: 5]
-    [cite_start]for _, list in pairs(locations) do -- [cite: 6]
-        [cite_start]for _, item in pairs(list) do -- [cite: 6]
-            [cite_start]if item:IsA("Tool") then -- [cite: 6]
-                [cite_start]local bName = item:GetAttribute("BrainrotName") or item.Name -- [cite: 6]
-                [cite_start]if bName == targetBrainrot and item:GetAttribute("Level") == targetLevel and item:GetAttribute("Mutation") == targetMutation then -- [cite: 6]
-                    [cite_start]total = total + 1 -- [cite: 7]
+    [cite_start]local total = 0 [cite: 6]
+    [cite_start]local locations = {player.Backpack:GetChildren(), (player.Character and player.Character:GetChildren() or {})} [cite: 6]
+    [cite_start]for _, list in pairs(locations) do [cite: 6]
+        [cite_start]for _, item in pairs(list) do [cite: 6]
+            [cite_start]if item:IsA("Tool") then [cite: 6]
+                [cite_start]local bName = item:GetAttribute("BrainrotName") or item.Name [cite: 6]
+                [cite_start]if bName == targetBrainrot and item:GetAttribute("Level") == targetLevel and item:GetAttribute("Mutation") == targetMutation then [cite: 6]
+                    [cite_start]total = total + 1 [cite: 7]
                 end
             end
         end
     end
-    [cite_start]return total -- [cite: 7]
+    [cite_start]return total [cite: 7]
 end
 
--- === KEYBIND LISTENER ===
+-- === KEYBIND LISTENER (Ubah ke P) ===
 UIS.InputBegan:Connect(function(input, processed)
     if processed then return end
-    if input.KeyCode == Enum.KeyCode.G then
+    if input.KeyCode == Enum.KeyCode.P then -- Diubah ke tombol P
         if getgenv().AutoRadioactive then
             _G.ForceDupeNow = true
         end
@@ -92,118 +92,118 @@ UIS.InputBegan:Connect(function(input, processed)
 end)
 
 -- === UI SETUP ===
-[cite_start]if coreGui:FindFirstChild("RadioactiveTimerUI") then coreGui:FindFirstChild("RadioactiveTimerUI"):Destroy() end -- [cite: 8]
-local sg = Instance.new("ScreenGui", coreGui); [cite_start]-- [cite: 8]
-[cite_start]sg.Name = "RadioactiveTimerUI" -- [cite: 8]
-[cite_start]local MainFrame = Instance.new("Frame", sg) -- [cite: 8]
-MainFrame.Size = UDim2.new(0, 220, 0, 150); [cite_start]-- [cite: 8]
-[cite_start]MainFrame.Position = UDim2.new(0.8, 0, 0.5, 0) -- [cite: 9]
-MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30); MainFrame.Active = true; [cite_start]-- [cite: 9]
-[cite_start]MainFrame.Draggable = true -- [cite: 10]
-[cite_start]Instance.new("UICorner", MainFrame) -- [cite: 10]
+[cite_start]if coreGui:FindFirstChild("RadioactiveTimerUI") then coreGui:FindFirstChild("RadioactiveTimerUI"):Destroy() end [cite: 8]
+[cite_start]local sg = Instance.new("ScreenGui", coreGui); [cite: 8]
+[cite_start]sg.Name = "RadioactiveTimerUI" [cite: 8]
+[cite_start]local MainFrame = Instance.new("Frame", sg) [cite: 8]
+[cite_start]MainFrame.Size = UDim2.new(0, 220, 0, 150); [cite: 8]
+[cite_start]MainFrame.Position = UDim2.new(0.8, 0, 0.5, 0) [cite: 9]
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30); [cite_start]MainFrame.Active = true; [cite: 9]
+[cite_start]MainFrame.Draggable = true [cite: 10]
+[cite_start]Instance.new("UICorner", MainFrame) [cite: 10]
 
-[cite_start]local StatusLabel = Instance.new("TextLabel", MainFrame) -- [cite: 10]
-StatusLabel.Size = UDim2.new(1, 0, 0, 40); [cite_start]-- [cite: 10]
-[cite_start]StatusLabel.Position = UDim2.new(0, 0, 0.2, 0) -- [cite: 11]
-StatusLabel.TextColor3 = Color3.fromRGB(0, 170, 255); StatusLabel.BackgroundTransparency = 1; [cite_start]-- [cite: 11]
-[cite_start]StatusLabel.Font = Enum.Font.Gotham -- [cite: 12]
+[cite_start]local StatusLabel = Instance.new("TextLabel", MainFrame) [cite: 10]
+[cite_start]StatusLabel.Size = UDim2.new(1, 0, 0, 40); [cite: 10]
+[cite_start]StatusLabel.Position = UDim2.new(0, 0, 0.2, 0) [cite: 11]
+StatusLabel.TextColor3 = Color3.fromRGB(0, 170, 255); [cite_start]StatusLabel.BackgroundTransparency = 1; [cite: 11]
+[cite_start]StatusLabel.Font = Enum.Font.Gotham [cite: 12]
 
-[cite_start]local ToggleBtn = Instance.new("TextButton", MainFrame) -- [cite: 12]
-ToggleBtn.Size = UDim2.new(0.8, 0, 0, 30); [cite_start]-- [cite: 12]
-[cite_start]ToggleBtn.Position = UDim2.new(0.1, 0, 0.6, 0) -- [cite: 13]
-ToggleBtn.Text = "AUTO DUPE: ON"; [cite_start]-- [cite: 13]
-[cite_start]ToggleBtn.BackgroundColor3 = Color3.fromRGB(46, 204, 113) -- [cite: 14]
-[cite_start]Instance.new("UICorner", ToggleBtn) -- [cite: 14]
+[cite_start]local ToggleBtn = Instance.new("TextButton", MainFrame) [cite: 12]
+[cite_start]ToggleBtn.Size = UDim2.new(0.8, 0, 0, 30); [cite: 12]
+[cite_start]ToggleBtn.Position = UDim2.new(0.1, 0, 0.6, 0) [cite: 13]
+[cite_start]ToggleBtn.Text = "AUTO DUPE: ON"; [cite: 13]
+[cite_start]ToggleBtn.BackgroundColor3 = Color3.fromRGB(46, 204, 113) [cite: 14]
+[cite_start]Instance.new("UICorner", ToggleBtn) [cite: 14]
 
 ToggleBtn.MouseButton1Click:Connect(function()
-    [cite_start]getgenv().AutoRadioactive = not getgenv().AutoRadioactive -- [cite: 14]
-    [cite_start]ToggleBtn.Text = getgenv().AutoRadioactive and "AUTO DUPE: ON" or "AUTO DUPE: OFF" -- [cite: 14]
-    [cite_start]ToggleBtn.BackgroundColor3 = getgenv().AutoRadioactive and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(192, 57, 43) -- [cite: 14]
+    [cite_start]getgenv().AutoRadioactive = not getgenv().AutoRadioactive [cite: 14]
+    [cite_start]ToggleBtn.Text = getgenv().AutoRadioactive and "AUTO DUPE: ON" or "AUTO DUPE: OFF" [cite: 14]
+    [cite_start]ToggleBtn.BackgroundColor3 = getgenv().AutoRadioactive and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(192, 57, 43) [cite: 14]
 end)
 
 -- === MAIN LOOP ===
 task.spawn(function()
     while true do
         if getgenv().AutoRadioactive then
-            [cite_start]local timeLeft = waitTime -- [cite: 15]
-            [cite_start]local unequipTriggered = false -- [cite: 15]
+            [cite_start]local timeLeft = waitTime [cite: 15]
+            local unequipTriggered = false 
             
             while timeLeft > 0 and getgenv().AutoRadioactive do
-                -- Cek Keybind G
+                -- Cek Keybind P
                 if _G.ForceDupeNow then
                     _G.ForceDupeNow = false
                     break
                 end
 
-                [cite_start]StatusLabel.Text = "Next Dupe: " .. math.floor(timeLeft/60) .. "m " .. (timeLeft%60) .. "s" -- [cite: 15]
+                [cite_start]StatusLabel.Text = "Next Dupe: " .. math.floor(timeLeft/60) .. "m " .. (timeLeft%60) .. "s" [cite: 16]
                 
-                [cite_start]if timeLeft <= 30 and not unequipTriggered then -- [cite: 16]
-                    [cite_start]unequipAll() -- [cite: 16]
-                    [cite_start]unequipTriggered = true -- [cite: 16]
+                [cite_start]if timeLeft <= 30 and not unequipTriggered then [cite: 16]
+                    [cite_start]unequipAll() [cite: 16]
+                    [cite_start]unequipTriggered = true [cite: 16]
                 end
                 
-                [cite_start]task.wait(1) -- [cite: 17]
-                [cite_start]timeLeft = timeLeft - 1 -- [cite: 17]
+                [cite_start]task.wait(1) [cite: 17]
+                [cite_start]timeLeft = timeLeft - 1 [cite: 17]
             end
 
             if getgenv().AutoRadioactive then
-                [cite_start]local char = player.Character -- [cite: 18]
-                [cite_start]local root = char and char:FindFirstChild("HumanoidRootPart") -- [cite: 18]
-                [cite_start]local hum = char and char:FindFirstChildOfClass("Humanoid") -- [cite: 18]
+                [cite_start]local char = player.Character [cite: 18]
+                [cite_start]local root = char and char:FindFirstChild("HumanoidRootPart") [cite: 18]
+                [cite_start]local hum = char and char:FindFirstChildOfClass("Humanoid") [cite: 18]
                 
                 if root and hum then
-                    [cite_start]StatusLabel.Text = "Teleporting..." -- [cite: 18]
-                    [cite_start]root.CFrame = CFrame.new(targetPosSpawn) -- [cite: 18]
-                    [cite_start]task.wait(0.5) -- [cite: 19]
-                    [cite_start]setFreeze(true) -- [cite: 19]
+                    [cite_start]StatusLabel.Text = "Teleporting..." [cite: 18]
+                    [cite_start]root.CFrame = CFrame.new(targetPosSpawn) [cite: 19]
+                    [cite_start]task.wait(0.5) [cite: 19]
+                    [cite_start]setFreeze(true) [cite: 19]
 
-                    [cite_start]StatusLabel.Text = "Cleaning Machine..." -- [cite: 19]
-                    [cite_start]spawnRemote:InvokeServer("Withdraw", machinePath) -- [cite: 19]
-                    [cite_start]task.wait(1) -- [cite: 20]
+                    [cite_start]StatusLabel.Text = "Cleaning Machine..." [cite: 19]
+                    [cite_start]spawnRemote:InvokeServer("Withdraw", machinePath) [cite: 19]
+                    [cite_start]task.wait(1) [cite: 20]
 
-                    [cite_start]local countBefore = countTargetInventory() -- [cite: 20]
+                    [cite_start]local countBefore = countTargetInventory() [cite: 20]
 
-                    [cite_start]local unit = nil -- [cite: 20]
-                    [cite_start]for _, v in pairs(player.Backpack:GetChildren()) do -- [cite: 20]
-                        [cite_start]if v:GetAttribute("BrainrotName") == targetBrainrot and v:GetAttribute("Level") == targetLevel and v:GetAttribute("Mutation") == targetMutation then -- [cite: 21]
-                            [cite_start]unit = v break -- [cite: 21]
+                    [cite_start]local unit = nil [cite: 20]
+                    [cite_start]for _, v in pairs(player.Backpack:GetChildren()) do [cite: 20]
+                        [cite_start]if v:GetAttribute("BrainrotName") == targetBrainrot and v:GetAttribute("Level") == targetLevel and v:GetAttribute("Mutation") == targetMutation then [cite: 21]
+                            [cite_start]unit = v break [cite: 21]
                         end
                     end
 
                     if unit then
-                        [cite_start]StatusLabel.Text = "Holding Item..." -- [cite: 22]
-                        [cite_start]hum:EquipTool(unit) -- [cite: 22]
-                        [cite_start]task.wait(2) -- [cite: 22]
+                        [cite_start]StatusLabel.Text = "Holding Item..." [cite: 22]
+                        [cite_start]hum:EquipTool(unit) [cite: 22]
+                        [cite_start]task.wait(2) [cite: 22]
 
-                        [cite_start]StatusLabel.Text = "Depositing..." -- [cite: 23]
-                        [cite_start]spawnRemote:InvokeServer("Deposit", machinePath) -- [cite: 23]
-                        [cite_start]task.wait(2) -- [cite: 23]
+                        [cite_start]StatusLabel.Text = "Depositing..." [cite: 23]
+                        [cite_start]spawnRemote:InvokeServer("Deposit", machinePath) [cite: 23]
+                        [cite_start]task.wait(2) [cite: 23]
 
-                        [cite_start]StatusLabel.Text = "Combining..." -- [cite: 23]
-                        [cite_start]spawnRemote:InvokeServer("Combine", machinePath) -- [cite: 24]
+                        [cite_start]StatusLabel.Text = "Combining..." [cite: 24]
+                        [cite_start]spawnRemote:InvokeServer("Combine", machinePath) [cite: 24]
                         
                         for i = 5, 1, -1 do
-                            [cite_start]StatusLabel.Text = "Detecting in " .. i .. "s..." -- [cite: 25]
-                            [cite_start]task.wait(1) -- [cite: 25]
+                            [cite_start]StatusLabel.Text = "Detecting in " .. i .. "s..." [cite: 25]
+                            [cite_start]task.wait(1) [cite: 25]
                         end
                         
-                        [cite_start]local countAfter = countTargetInventory() -- [cite: 26]
-                        if countAfter > countBefore then
-                            StatusLabel.Text = "✅ SUCCESS!" [cite_start]-- [cite: 26]
-                            [cite_start]sendWebhook(countBefore, countAfter) -- [cite: 27]
+                        [cite_start]local countAfter = countTargetInventory() [cite: 26]
+                        [cite_start]if countAfter > countBefore then [cite: 26]
+                            [cite_start]StatusLabel.Text = "✅ SUCCESS!" [cite: 26]
+                            [cite_start]sendWebhook(countBefore, countAfter) [cite: 27]
                         else
-                            [cite_start]StatusLabel.Text = "❌ Failed (No Gain)" -- [cite: 27]
+                            [cite_start]StatusLabel.Text = "❌ Failed (No Gain)" [cite: 27]
                         end
                     else
-                        StatusLabel.Text = "⚠️ Item Not Found!" [cite_start]-- [cite: 28]
+                        [cite_start]StatusLabel.Text = "⚠️ Item Not Found!" [cite: 28]
                     end
-                    [cite_start]setFreeze(false) -- [cite: 29]
-                    [cite_start]task.wait(5) -- [cite: 29]
+                    [cite_start]setFreeze(false) [cite: 29]
+                    [cite_start]task.wait(5) [cite: 29]
                 end
             end
         else
-            StatusLabel.Text = "System Paused"; [cite_start]-- [cite: 30]
-            [cite_start]task.wait(1) -- [cite: 30]
+            [cite_start]StatusLabel.Text = "System Paused"; [cite: 30]
+            [cite_start]task.wait(1) [cite: 30]
         end
     end
 end)
