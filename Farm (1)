@@ -1,375 +1,184 @@
-task.spawn(function() 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/FnDXueyi/list/refs/heads/main/game"))()
-end)
-
-setfpscap(5)
 task.wait(5)
 
-_G.FishItConfig = _G.FishItConfig or {
-    ["Fishing"] = {
-        ["Auto Perfect"] = true,
-        ["Auto Favorite"] = true,
-        ["Fish Name"] = {
-            "Sacred Guardian Squid",
-        },
-    },
-    ["Auto Trade"] = {
-        ["Enabled"] = true,
-        ["Whitelist Username"] = {"PALINGONTOT", "RajaIkanR10K", "RajaIkanR10K2", "RajaIkanR10K3", "RajaIkanR10K4", "RajaIkanR10K5",
-"XxEch0_F0xxX2010",
-"R0gueHer0Master24",
-"NinjaM00nR0cket2020",
-"SkaterUltraSpark2013",
-"DancerEpic201422",
-"HunterFusionZap20102",
-"ISAB3LLA_Shadow2005",
-"DuckEagle41",
-"Skater_Ice75",
-"Micha3lVoidHawk",
-"XxDanielKingChillxX",
-"Str3amHyp3rGold3n200",
-"ShadowDragonSlime85",
-"XxLeviHunterxX2020",
-"JaydenCircuitOrbit_Y",
-"XxSpark_Z3roxX2009",
-"GraysonBuilderByteYT",
-"XxLoganBladeMaxxX201",
-"XxNightAceKnightxX",
-"EchoGalaxyBacon2019",
-"Xx_SonicPixelatedUlt",
-"Ow3nCraft2021",
-"VictoriaBladeGamer47",
-"XxChase_WraithxX2020",
-"XxJamesThunderxX55",
-"EliStormSilver2012",
-"HunterVortex201464",
-"EliRiderRocket",
-"ArrowStarB3ar",
-"Qu33nZ3r02011",
-"Ech0_Lucky72",
-"XxGraysonAquaxX53",
-"NeonSparkIce2024",
-"NovaPowerIce_YT",
-"AmeliaDawnVenom2013",
-"H3roStarPlayz2013",
-"CarterZoomDuck2002",
-"NinjaLightGiga2008",
-"Str3amFr0stEch083",
-"RiftNeonGolden2024",
-"XxOrbitOm3gaFlam3xX2",
-"XxEmmaMagicCookiexX",
-"G0LDEN_Chill2015YT",
-"ChaosDawnSky2022",
-"PlayzLight2004YT",
-"CourtneyDrake93782",
-"PerryDuarte53692",
-"TroyGreen61273",
-"KirstenGibson5061",
-"JasminSchneider19"},
-        ["Category Fish"] = { -- Only Select one, fill in the fish category or fish name
-            "Secret",
-        },
-        ["Fish Name"] = {
-        },
-    },
-    ["Farm Coin Only"] = {
-        ["Enabled"] = false, -- Farm coins only [ cant buy rod, bait, enchant, weather ]
-        ["Target"] = 190000,
-    },
-    ["Selling"] = {
-        ["Auto Sell"] = true,
-        ["Auto Sell Threshold"] = "Legendary",
-        ["Auto Sell Every"] = 25,
-    },
-    ["Doing Quest"] = {
-        ["Auto Ghostfinn Rod"] = true,
-        ["Auto Element Rod"] = false,
-        ["Allowed Sacrifice"] = {
-            "Blob Shark",
-            "Ghost Shark",
-            "Giant Squid",
-            "Mosasaur Shark",
-            "Worm Fish",
-            "King Jelly",
-            "Cryoshade Glider",
-            "Thin Armor Shark",
-        },
-        ["FARM_LOC_SECRET_SACRIFICE"] = "Esoteric Depths",
+-- === CONFIGURATION & WEBHOOK ===
+getgenv().AutoRadioactive = true
+local webhook_url = "https://discord.com/api/webhooks/1433619088588017684/02wMrYk7vdbmgEz46dCdDiJrj9QONW7SKqAibBQdwO__JaFuRycX_6L-nmLSpJd_-Xb9" 
+local targetBrainrot = "Galactio Fantasma"
+local targetLevel = 125
+local targetMutation = "Admin"
+local waitTime = 45.5 * 60 
 
-        ["Minimum Rod"] = "Astral Rod",
-    },
-    ["WebHook"] = {
-        ["Link Webhook"] = "https://discord.com/api/webhooks/1433619088588017684/02wMrYk7vdbmgEz46dCdDiJrj9QONW7SKqAibBQdwO__JaFuRycX_6L-nmLSpJd_-Xb9",
-        ["Auto Sending"] = true,
-        ["Category"] = {"Secret"},
+-- Services
+local player = game.Players.LocalPlayer
+local RS = game:GetService("ReplicatedStorage")
+local coreGui = game:GetService("CoreGui")
+local HttpService = game:GetService("HttpService")
 
-        ["Link Webhook Quest Complete"] = "https://discord.com/api/webhooks/1442239726894452808/V4bES2hebdBXO11c66AHb-BqrMaSf0iaO0KiL4scsgL0E-VXjACelgw6iICCNOjCWdgx",
-    },
-    ["Weather"] = {
-        ["Auto Buying"] = false,
-        ["Minimum Rod"] = "Ghostfinn Rod",
-        ["Weather List"] = {
-            "Shark Hunt",
-            "Cloudy",
-            "Storm",
-        },
-    },
-    ["Event"] = {
-        ["Start Farm"] = true,
-        ["Minimum Rod"] = "Ghostfinn Rod",
-        ["Event List"] = {
-            "Shark Hunt",
-            "Black Hole",
-            "Shocked",
-            "Ghost Worm",
-            "Admin - Ghost Worm",
-            "Meteor Rain",
-        },
-    },
-    ["Enchant"] = {
-        ["Auto Enchant"] = true,
-        ["Roll Enchant"] = true, -- Roll enchant until get Leprechaun II
-        ["Minimum Rod"] = "Astral Rod",
-        ["Enchant List"] = {
-            "Leprechaun II",
-        },
-    },
-    ["Bait List"] = {
-        ["Auto Buying"] = true,
-        ["Buy List"] = {
-            "Midnight Bait",
-            "Chroma Bait",
-            "Corrupt Bait",
-            "Aether Bait",
-            "Singularity Bait",
-        },
-    },
-    ["Rod List"] = {
-        ["Auto Buying"] = true,
-        ["Buy List"] = {
-            "Grass Rod",
-            "Midnight Rod",
-            "Astral Rod",
-            "Ares Rod",
-        },
-        ["Location Rods"] = { -- Farm location and minimum rod to start on that location, also only 1 rod and only 1 location
-            ["Fisherman Island"] = {"Starter Rod"}, -- Do not change
-            ["Kohana Volcano"] = {"Grass Rod", "Midnight Rod"},
-            ["Esoteric Depths"] = {"Element Rod", "Ghostfinn Rod", "Angler Rod", "Ares Rod", "Bamboo Rod", "Astral Rod"},
-        },
-    },
+local spawnRemote = RS:WaitForChild("Packages"):WaitForChild("Net"):WaitForChild("RF/SpawnMachine.Action") 
+local machinePath = workspace:WaitForChild("SpawnMachines"):WaitForChild("Default") 
+local targetPosSpawn = Vector3.new(138, 3, 78) 
 
-    ["ExtremeFpsBoost"] = true,
-    ["UltimatePerformance"] = true,
-    ["Disable3DRender"] = true,
-    ["AutoRemovePlayer"] = true,
-
-    ["AutoReconnect"] = false,
-    ["HideGUI"] = false,
-}
-
-script_key="6DC10E67351FC38A14323B1B03A5C335";
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/FnDXueyi/roblog/refs/heads/main/fishit-78c86024ea87c8eca577549807421962.lua"))()
-
---------------------------------------------------------------------------------------------------------------------------------------------
-
-task.wait(900)
-
-repeat
-    task.wait()
-until game:IsLoaded()
-
-repeat
-    task.wait()
-until game.Players.LocalPlayer
-
-repeat
-    task.wait()
-until game.Players.LocalPlayer.Character
-
-if not game:IsLoaded() then
-    game.Loaded:Wait()
+-- === FUNCTIONS ===
+local function sendWebhook(oldC, newC)
+    -- Mendapatkan username dan menyembunyikannya dengan spoiler ||username||
+    local hiddenUsername = "||" .. player.Name .. "||"
+    
+    local data = {
+        ["content"] = "🚀 **DUPE SUCCESS!**",
+        ["embeds"] = {{
+            ["title"] = "Auto Dupe Detection", 
+            ["color"] = 65280,
+            ["fields"] = {
+                {["name"] = "Player", ["value"] = hiddenUsername, ["inline"] = false}, -- Menambahkan Username (Hidden)
+                {["name"] = "Item", ["value"] = targetBrainrot .. " (Lvl " .. targetLevel .. ")", ["inline"] = false},
+                {["name"] = "Mutation", ["value"] = targetMutation, ["inline"] = true},
+                {["name"] = "Inventory Sebelum", ["value"] = tostring(oldC), ["inline"] = true},
+                {["name"] = "Inventory Sesudah", ["value"] = tostring(newC), ["inline"] = true},
+                {["name"] = "Keuntungan", ["value"] = "+" .. tostring(newC - oldC), ["inline"] = true} 
+            },
+            ["footer"] = {["text"] = "Brainrot Manager • " .. os.date("%X")}
+        }}
+    }
+    local request = syn and syn.request or http_request or request or HttpPost
+    if request then
+        request({Url = webhook_url, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = HttpService:JSONEncode(data)}) 
+    end
 end
 
-local GuiService = game:GetService("GuiService")
-
--- Ghi timestamp mỗi 5 giây
-spawn(function()
-    while task.wait(5) do
-        pcall(function()
-            local timestamp = math.floor(os.time())
-            writefile(game.Players.LocalPlayer.Name .. "-Time.txt", tostring(timestamp))
-        end)
+local function unequipAll()
+    local char = player.Character
+    if char then
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then 
+            hum:UnequipTools() 
+            print("Safety Unequip: Semua item dilepas ke backpack.")
+        end
     end
-end)
+end
 
--- Kiểm tra lỗi disconnect
-spawn(function()
-    while task.wait(60) do
-        pcall(function()
-            for _, v in pairs(game.CoreGui.RobloxPromptGui.promptOverlay:GetChildren()) do
-                if v.Name == "ErrorPrompt" then
-                    game:Shutdown()
+local function setFreeze(status)
+    local char = player.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        char.HumanoidRootPart.Anchored = status 
+    end
+end
+
+local function countTargetInventory()
+    local total = 0
+    local locations = {player.Backpack:GetChildren(), (player.Character and player.Character:GetChildren() or {})} 
+    for _, list in pairs(locations) do
+        for _, item in pairs(list) do
+            if item:IsA("Tool") then
+                local bName = item:GetAttribute("BrainrotName") or item.Name 
+                if bName == targetBrainrot and item:GetAttribute("Level") == targetLevel and item:GetAttribute("Mutation") == targetMutation then
+                    total = total + 1 
                 end
             end
-            local errorCode = GuiService:GetErrorCode().Value
-            if errorCode >= Enum.ConnectionError.DisconnectErrors.Value then
-                game:Shutdown()
-            end
-        end)
+        end
     end
+    return total
+end
+
+-- === UI SETUP ===
+if coreGui:FindFirstChild("RadioactiveTimerUI") then coreGui:FindFirstChild("RadioactiveTimerUI"):Destroy() end
+local sg = Instance.new("ScreenGui", coreGui); sg.Name = "RadioactiveTimerUI" 
+local MainFrame = Instance.new("Frame", sg)
+MainFrame.Size = UDim2.new(0, 220, 0, 150); MainFrame.Position = UDim2.new(0.8, 0, 0.5, 0) 
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30); MainFrame.Active = true; MainFrame.Draggable = true 
+Instance.new("UICorner", MainFrame)
+
+local StatusLabel = Instance.new("TextLabel", MainFrame)
+StatusLabel.Size = UDim2.new(1, 0, 0, 40); StatusLabel.Position = UDim2.new(0, 0, 0.2, 0) 
+StatusLabel.TextColor3 = Color3.fromRGB(0, 170, 255); StatusLabel.BackgroundTransparency = 1; StatusLabel.Font = Enum.Font.Gotham 
+
+local ToggleBtn = Instance.new("TextButton", MainFrame)
+ToggleBtn.Size = UDim2.new(0.8, 0, 0, 30); ToggleBtn.Position = UDim2.new(0.1, 0, 0.6, 0) 
+ToggleBtn.Text = "AUTO DUPE: ON"; ToggleBtn.BackgroundColor3 = Color3.fromRGB(46, 204, 113) 
+Instance.new("UICorner", ToggleBtn)
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    getgenv().AutoRadioactive = not getgenv().AutoRadioactive
+    ToggleBtn.Text = getgenv().AutoRadioactive and "AUTO DUPE: ON" or "AUTO DUPE: OFF"
+    ToggleBtn.BackgroundColor3 = getgenv().AutoRadioactive and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(192, 57, 43)
 end)
 
--- Bắt sự kiện khi ErrorPrompt xuất hiện
-game.CoreGui.RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(child)
-    if child.Name == "ErrorPrompt" then
-        game:Shutdown()
+-- === MAIN LOOP ===
+task.spawn(function()
+    while true do
+        if getgenv().AutoRadioactive then
+            local timeLeft = waitTime
+            local unequipTriggered = false -- Reset trigger tiap siklus baru
+            
+            while timeLeft > 0 and getgenv().AutoRadioactive do
+                StatusLabel.Text = "Next Dupe: " .. math.floor(timeLeft/60) .. "m " .. (timeLeft%60) .. "s"
+                
+                -- Fitur 30 Detik Sebelum Selesai
+                if timeLeft <= 30 and not unequipTriggered then
+                    unequipAll()
+                    unequipTriggered = true -- Memastikan hanya terpanggil sekali
+                end
+                
+                task.wait(1)
+                timeLeft = timeLeft - 1
+            end
+
+            if getgenv().AutoRadioactive then
+                local char = player.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                
+                if root and hum then
+                    StatusLabel.Text = "Teleporting..." 
+                    root.CFrame = CFrame.new(targetPosSpawn) 
+                    task.wait(0.5)
+                    setFreeze(true)
+
+                    StatusLabel.Text = "Cleaning Machine..."
+                    spawnRemote:InvokeServer("Withdraw", machinePath)
+                    task.wait(1)
+
+                    local countBefore = countTargetInventory()
+
+                    local unit = nil
+                    for _, v in pairs(player.Backpack:GetChildren()) do
+                        if v:GetAttribute("BrainrotName") == targetBrainrot and v:GetAttribute("Level") == targetLevel and v:GetAttribute("Mutation") == targetMutation then
+                            unit = v break 
+                        end
+                    end
+
+                    if unit then
+                        StatusLabel.Text = "Holding Item..." 
+                        hum:EquipTool(unit) 
+                        task.wait(2) 
+
+                        StatusLabel.Text = "Depositing..." 
+                        spawnRemote:InvokeServer("Deposit", machinePath) 
+                        task.wait(2) 
+
+                        StatusLabel.Text = "Combining..." 
+                        spawnRemote:InvokeServer("Combine", machinePath) 
+                        
+                        for i = 5, 1, -1 do
+                            StatusLabel.Text = "Detecting in " .. i .. "s..." 
+                            task.wait(1) 
+                        end
+                        
+                        local countAfter = countTargetInventory()
+                        if countAfter > countBefore then
+                            StatusLabel.Text = "✅ SUCCESS!" 
+                            sendWebhook(countBefore, countAfter) -- Webhook diaktifkan kembali
+                        else
+                            StatusLabel.Text = "❌ Failed (No Gain)" 
+                        end
+                    else
+                        StatusLabel.Text = "⚠️ Item Not Found!" 
+                    end
+                    setFreeze(false)
+                    task.wait(5)
+                end
+            end
+        else
+            StatusLabel.Text = "System Paused"; task.wait(1) 
+        end
     end
 end)
-
-task.wait(300)
-local Player = game.Players.LocalPlayer
-for i, v in Player.PlayerGui:GetDescendants() do
-    pcall(function() v.Enabled = false end)
-end
-
-local entities = {
-    "Stats", 
-    "Chat", 
-    "Debris",
-    "CoreGui",
-}
-for _, entity in entities do
-    pcall(function()
-        for i, v in game[entity]:GetDescendants() do
-            pcall(function() v:Destroy() end)
-        end
-    end)
-end
-
--- Variable to enable frame rate optimization features
-FrameRateBoost = true
-
--- Function to lower texture quality and modify properties for performance optimization
-function TextureLow()
-    if not game:IsLoaded() then repeat wait() until game:IsLoaded() end
-    if hookfunction and setreadonly then
-        local mt = getrawmetatable(game)
-        local old = mt.__newindex
-        setreadonly(mt, false)
-        local sda
-        sda = hookfunction(old, function(t, k, v)
-            -- Modify material properties for performance
-            if k == "Material" then
-                if v ~= Enum.Material.Neon and v ~= Enum.Material.Plastic and v ~= Enum.Material.ForceField then v = Enum.Material.Plastic end
-            elseif k == "TopSurface" then v = "Smooth"
-            elseif k == "Reflectance" or k == "WaterWaveSize" or k == "WaterWaveSpeed" or k == "WaterReflectance" then v = 0
-            elseif k == "WaterTransparency" then v = 1
-            elseif k == "GlobalShadows" then v = false end
-            return sda(t, k, v)
-        end)
-        setreadonly(mt, true)
-    end
-
-    -- Apply changes to the existing environment
-    local g = game
-    local w = g.Workspace
-    local l = g:GetService"Lighting"
-    local t = w:WaitForChild"Terrain"
-    t.WaterWaveSize = 0
-    t.WaterWaveSpeed = 0
-    t.WaterReflectance = 0
-    t.WaterTransparency = 1
-    l.GlobalShadows = false
-
-    -- Function to change object properties
-    function change(v)
-        pcall(function()
-            if v.Material ~= Enum.Material.Neon and v.Material ~= Enum.Material.Plastic and v.Material ~= Enum.Material.ForceField then
-                pcall(function() v.Reflectance = 0 end)
-                pcall(function() v.Material = Enum.Material.Plastic end)
-                pcall(function() v.TopSurface = "Smooth" end)
-            end
-        end)
-    end
-
-    -- Apply changes to new objects added to the game
-    game.DescendantAdded:Connect(function(v)
-        pcall(function()
-            if v:IsA"Part" then change(v)
-            elseif v:IsA"MeshPart" then change(v)
-            elseif v:IsA"TrussPart" then change(v)
-            elseif v:IsA"UnionOperation" then change(v)
-            elseif v:IsA"CornerWedgePart" then change(v)
-            elseif v:IsA"WedgePart" then change(v) end
-        end)
-    end)
-
-    -- Apply changes to all existing descendants
-    for i, v in pairs(game:GetDescendants()) do
-        pcall(function()
-            if v:IsA"Part" then change(v)
-            elseif v:IsA"MeshPart" then change(v)
-            elseif v:IsA"TrussPart" then change(v)
-            elseif v:IsA"UnionOperation" then change(v)
-            elseif v:IsA"CornerWedgePart" then change(v)
-            elseif v:IsA"WedgePart" then change(v) end
-        end)
-    end
-end
-
--- Function to remove water objects from the workspace
-function WaterRemove()
-    for i,v in pairs(workspace:GetDescendants()) do
-        if string.find(v.Name,"Water") then
-            v:Destroy()
-        end
-    end
-end
-
--- Function to remove specific objects like trees and houses
-function ObjectRemove()
-    for i,v in pairs(workspace:GetDescendants()) do
-        if string.find(v.Name,"Tree") or string.find(v.Name,"House") then
-            v:Destroy()
-        end
-    end
-end
-
--- Function to make non-essential objects invisible
-function InvisibleObject()
-    for i,v in pairs(game:GetService("Workspace"):GetDescendants()) do
-        if (v:IsA("Part") or v:IsA("MeshPart") or v:IsA("BasePart")) and v.Transparency then
-            v.Transparency = 1
-        end
-    end
-end
-
--- Disable unnecessary in-game UI to improve performance
-function DisableUI()
-    -- Disable CoreGui UI elements (e.g., Chat, PlayerList, etc.)
-    game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
-    game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
-    game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
-    game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Health, false)
-    game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Templates, false)
-
-    -- Disable in-game menus
-    game:GetService("StarterGui"):SetCore("ResetButtonCallback", false)  -- Disables reset button
-end
-
--- Main block that executes the optimizations if FrameRateBoost is true
-if FrameRateBoost then
-    -- Clear all lighting and apply optimizations
-    game:GetService("Lighting"):ClearAllChildren()
-    TextureLow()
-    WaterRemove()
-    ObjectRemove()
-    InvisibleObject()
-    DisableUI()  -- Disable UI elements for performance boost
-end
-
--- Audio and graphics settings optimization
-game:GetService("UserGameSettings").MasterVolume = 0  -- Mute sound for performance
-game:GetService("Settings").Rendering.QualityLevel = 3  -- Set rendering quality to the lowest possible setting
