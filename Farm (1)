@@ -1,85 +1,110 @@
--- [[ MODIFIED SCRIPT WITH KEYBIND P ]]
+-- [[ MODIFIED SCRIPT WITH SEPARATED WEBHOOKS ]]
 
-[cite_start]task.wait(5) [cite: 1]
+task.wait(5)
 
 -- === CONFIGURATION & WEBHOOK ===
-[cite_start]getgenv().AutoRadioactive = true [cite: 1]
-[cite_start]local webhook_url = "https://discord.com/api/webhooks/1433619088588017684/02wMrYk7vdbmgEz46dCdDiJrj9QONW7SKqAibBQdwO__JaFuRycX_6L-nmLSpJd_-Xb9" [cite: 1]
-[cite_start]local targetBrainrot = "Galactio Fantasma" [cite: 1]
-[cite_start]local targetLevel = 125 [cite: 1]
-[cite_start]local targetMutation = "Admin" [cite: 1]
-[cite_start]local waitTime = 45.5 * 60 [cite: 1]
+getgenv().AutoRadioactive = true
+
+-- 1. Webhook untuk notifikasi Dupe Berhasil
+local webhook_url = "https://discord.com/api/webhooks/1433619088588017684/02wMrYk7vdbmgEz46dCdDiJrj9QONW7SKqAibBQdwO__JaFuRycX_6L-nmLSpJd_-Xb9" 
+
+-- 2. Webhook untuk info akun yang punya > 1 Galactio (Setiap 30 Menit)
+local checker_webhook_url = "https://discord.com/api/webhooks/1466083152073195530/NvOMzqOKfzUKn-rNw-4mx6dDxVwe0gPLfMJMut1QSRFTVI5OK5x-APBf72tJMCNZWvYQ" 
+
+local targetBrainrot = "Galactio Fantasma"
+local targetLevel = 125
+local targetMutation = "Admin"
+local waitTime = 45.5 * 60
 
 -- Services
-[cite_start]local player = game.Players.LocalPlayer [cite: 1]
-[cite_start]local RS = game:GetService("ReplicatedStorage") [cite: 1]
-[cite_start]local coreGui = game:GetService("CoreGui") [cite: 1]
-[cite_start]local HttpService = game:GetService("HttpService") [cite: 1]
-local UIS = game:GetService("UserInputService") -- Layanan untuk mendeteksi tombol keyboard
-
-[cite_start]local spawnRemote = RS:WaitForChild("Packages"):WaitForChild("Net"):WaitForChild("RF/SpawnMachine.Action") [cite: 1]
-[cite_start]local machinePath = workspace:WaitForChild("SpawnMachines"):WaitForChild("Default") [cite: 1]
-[cite_start]local targetPosSpawn = Vector3.new(138, 3, 78) [cite: 1]
-
--- Variable untuk Trigger Manual via P
-_G.ForceDupeNow = false
+local player = game.Players.LocalPlayer
+local RS = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
+local UIS = game:GetService("UserInputService")
+local coreGui = game:GetService("CoreGui")
 
 -- === FUNCTIONS ===
-local function sendWebhook(oldC, newC)
-    local data = {
-        ["content"] = "🚀 **DUPE SUCCESS!**",
-        ["embeds"] = {{
-            [cite_start]["title"] = "Auto Dupe Detection", [cite: 2]
-            ["color"] = 65280,
-            ["fields"] = {
-                [cite_start]{["name"] = "Item", ["value"] = targetBrainrot .. " (Lvl " .. targetLevel .. ")", ["inline"] = false}, [cite: 2]
-                [cite_start]{["name"] = "Mutation", ["value"] = targetMutation, ["inline"] = true}, [cite: 2]
-                [cite_start]{["name"] = "Inventory Sebelum", ["value"] = tostring(oldC), ["inline"] = true}, [cite: 3]
-                [cite_start]{["name"] = "Inventory Sesudah", ["value"] = tostring(newC), ["inline"] = true}, [cite: 3]
-                [cite_start]{["name"] = "Keuntungan", ["value"] = "+" .. tostring(newC - oldC), ["inline"] = true} [cite: 3]
-            },
-            [cite_start]["footer"] = {["text"] = "Brainrot Manager • " .. os.date("%X")} [cite: 4]
-        }}
-    }
-    [cite_start]local request = syn and syn.request or http_request or request or HttpPost [cite: 4]
+
+-- Handler pengiriman (Dibuat dinamis agar bisa kirim ke URL berbeda)
+local function sendToDiscord(url, data)
+    local request = syn and syn.request or http_request or request or HttpPost
     if request then
-        [cite_start]request({Url = webhook_url, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = HttpService:JSONEncode(data)}) [cite: 4]
-    end
-end
-
-local function unequipAll()
-    [cite_start]local char = player.Character [cite: 5]
-    if char then
-        [cite_start]local hum = char:FindFirstChildOfClass("Humanoid") [cite: 5]
-        if hum then 
-            [cite_start]hum:UnequipTools() [cite: 5]
-            [cite_start]print("Safety Unequip: Semua item dilepas ke backpack.") [cite: 5]
-        end
-    end
-end
-
-local function setFreeze(status)
-    [cite_start]local char = player.Character [cite: 5]
-    if char and char:FindFirstChild("HumanoidRootPart") then
-        [cite_start]char.HumanoidRootPart.Anchored = status [cite: 5]
+        request({
+            Url = url, 
+            Method = "POST", 
+            Headers = {["Content-Type"] = "application/json"}, 
+            Body = HttpService:JSONEncode(data)
+        })
     end
 end
 
 local function countTargetInventory()
-    [cite_start]local total = 0 [cite: 6]
-    [cite_start]local locations = {player.Backpack:GetChildren(), (player.Character and player.Character:GetChildren() or {})} [cite: 6]
-    [cite_start]for _, list in pairs(locations) do [cite: 6]
-        [cite_start]for _, item in pairs(list) do [cite: 6]
-            [cite_start]if item:IsA("Tool") then [cite: 6]
-                [cite_start]local bName = item:GetAttribute("BrainrotName") or item.Name [cite: 6]
-                [cite_start]if bName == targetBrainrot and item:GetAttribute("Level") == targetLevel and item:GetAttribute("Mutation") == targetMutation then [cite: 6]
-                    [cite_start]total = total + 1 [cite: 7]
+    local total = 0
+    local locations = {player.Backpack:GetChildren(), (player.Character and player.Character:GetChildren() or {})}
+    for _, list in pairs(locations) do
+        for _, item in pairs(list) do
+            if item:IsA("Tool") then
+                local bName = item:GetAttribute("BrainrotName") or item.Name
+                if bName == targetBrainrot and item:GetAttribute("Level") == targetLevel and item:GetAttribute("Mutation") == targetMutation then
+                    total = total + 1
                 end
             end
         end
     end
-    [cite_start]return total [cite: 7]
+    return total
 end
+
+-- Webhook 1: Notifikasi Dupe Berhasil
+local function sendWebhookDupe(oldC, newC)
+    local data = {
+        ["content"] = "🚀 **DUPE SUCCESS!**",
+        ["embeds"] = {{
+            ["title"] = "Auto Dupe Detection",
+            ["color"] = 65280, -- Hijau
+            ["fields"] = {
+                {["name"] = "Item", ["value"] = targetBrainrot, ["inline"] = false},
+                {["name"] = "Inventory Sebelum", ["value"] = tostring(oldC), ["inline"] = true},
+                {["name"] = "Inventory Sesudah", ["value"] = tostring(newC), ["inline"] = true}
+            },
+            ["footer"] = {["text"] = "Dupe Log • " .. os.date("%X")}
+        }}
+    }
+    sendToDiscord(webhook_url, data)
+end
+
+-- Webhook 2: Notifikasi Akun Multiple Items (Setiap 30 Menit)
+local function sendInventoryReport(count)
+    local data = {
+        ["content"] = "📢 **INVENTORY STATUS REPORT**",
+        ["embeds"] = {{
+            ["title"] = "Multiple Item Alert!",
+            ["description"] = "Akun ini memiliki lebih dari satu **" .. targetBrainrot .. "**",
+            ["color"] = 16753920, -- Oranye/Emas
+            ["fields"] = {
+                {["name"] = "Username", ["value"] = "||" .. player.Name .. "||", ["inline"] = true},
+                {["name"] = "Total Dimiliki", ["value"] = "**" .. tostring(count) .. " Unit**", ["inline"] = true}
+            },
+            ["footer"] = {["text"] = "Periodic Check • " .. os.date("%X")},
+            ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        }}
+    }
+    sendToDiscord(checker_webhook_url, data)
+end
+
+-- === INVENTORY CHECKER LOOP (Background Task) ===
+task.spawn(function()
+    while true do
+        local currentCount = countTargetInventory()
+        if currentCount > 1 then
+            sendInventoryReport(currentCount)
+        end
+        task.wait(30 * 60) -- Jeda 30 menit
+    end
+end)
+
+-- === MAIN DUPE LOGIC (Disederhanakan untuk Review) ===
+-- [Gunakan logika dupe dari script asli Anda di sini]
+-- Pastikan saat memanggil fungsi sendWebhook, gunakan: sendWebhookDupe(countBefore, countAfter)
 
 -- === KEYBIND LISTENER (Ubah ke P) ===
 UIS.InputBegan:Connect(function(input, processed)
