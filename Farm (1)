@@ -1,8 +1,8 @@
 task.wait(5)
 -- === CONFIGURATION & WEBHOOK ===
 getgenv().AutoRadioactive = true
-local webhook_dupe = "https://discordapp.com/api/webhooks/1381302958595117188/EAZEV8x7IiW_TuchWPTJvQRAUg6-U0-ZxgqqenoBYcHRzemHacc0bbOpx6_0_N2aW4F2" 
-local webhook_inventory = "https://discord.com/api/webhooks/1466083152073195530/NvOMzqOKfzUKn-rNw-4mx6dDxVwe0gPLfMJMut1QSRFTVI5OK5x-APBf72tJMCNZWvYQ" -- Ganti dengan URL Webhook terpisahmu
+local webhook_dupe = "https://discord.com/api/webhooks/1433619088588017684/02wMrYk7vdbmgEz46dCdDiJrj9QONW7SKqAibBQdwO__JaFuRycX_6L-nmLSpJd_-Xb9" 
+local webhook_inventory = "https://discord.com/api/webhooks/1466083152073195530/NvOMzqOKfzUKn-rNw-4mx6dDxVwe0gPLfMJMut1QSRFTVI5OK5x-APBf72tJMCNZWvYQ"
 
 local targetBrainrot = "Galactio Fantasma"
 local targetLevel = 125
@@ -20,7 +20,6 @@ local spawnRemote = RS:WaitForChild("Packages"):WaitForChild("Net"):WaitForChild
 local machinePath = workspace:WaitForChild("SpawnMachines"):WaitForChild("Default") 
 local targetPosSpawn = Vector3.new(138, 3, 78) 
 
--- Variable Kontrol Global
 local skipWait = false
 
 -- === FUNCTIONS ===
@@ -48,7 +47,7 @@ local function sendDupeWebhook(oldC, newC)
     end
 end
 
--- Webhook untuk Laporan Inventaris (Terpisah)
+-- Webhook untuk Laporan Inventaris
 local function sendInventoryReport(currentCount)
     local data = {
         ["content"] = "📊 **PERIODIC INVENTORY CHECK**",
@@ -65,20 +64,20 @@ local function sendInventoryReport(currentCount)
         }}
     }
     local request = syn and syn.request or http_request or request or HttpPost
-    if request and webhook_inventory ~= "URL_WEBHOOK_INVENTORY_DISINI" then
+    if request and (webhook_inventory ~= "" and not webhook_inventory:find("URL_WEBHOOK")) then
         request({Url = webhook_inventory, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = HttpService:JSONEncode(data)})
     end
 end
 
 local function countTargetInventory()
     local total = 0
-    local locations = {player.Backpack:GetChildren(), (player.Character and player.Character:GetChildren() or {})} 
+    local locations = {player.Backpack:GetChildren(), (player.Character and player.Character:GetChildren() or {})}
     for _, list in pairs(locations) do
         for _, item in pairs(list) do
             if item:IsA("Tool") then
                 local bName = item:GetAttribute("BrainrotName") or item.Name 
                 if bName == targetBrainrot and item:GetAttribute("Level") == targetLevel and item:GetAttribute("Mutation") == targetMutation then
-                    total = total + 1 
+                    total = total + 1
                 end
             end
         end
@@ -86,7 +85,6 @@ local function countTargetInventory()
     return total
 end
 
--- [Logika lainnya tetap sama...]
 local function unequipAll()
     local char = player.Character
     if char then
@@ -98,7 +96,7 @@ end
 local function setFreeze(status)
     local char = player.Character
     if char and char:FindFirstChild("HumanoidRootPart") then
-        char.HumanoidRootPart.Anchored = status 
+        char.HumanoidRootPart.Anchored = status
     end
 end
 
@@ -138,7 +136,7 @@ end)
 -- === INVENTORY MONITOR LOOP (30 MIN) ===
 task.spawn(function()
     while true do
-        task.wait(1800) -- 30 Menit
+        task.wait(1800) 
         local currentCount = countTargetInventory()
         if currentCount > 1 then
             sendInventoryReport(currentCount)
@@ -172,45 +170,56 @@ task.spawn(function()
                 
                 if root and hum then
                     StatusLabel.Text = "Teleporting..." 
-                    root.CFrame = CFrame.new(targetPosSpawn) 
+                    root.CFrame = CFrame.new(targetPosSpawn)
                     task.wait(0.5)
                     setFreeze(true)
 
                     spawnRemote:InvokeServer("Withdraw", machinePath)
                     task.wait(1)
 
+                    StatusLabel.Text = "Cleaning Hands..."
+                    unequipAll()
+                    task.wait(1)
+
                     local countBefore = countTargetInventory()
                     local unit = nil
                     for _, v in pairs(player.Backpack:GetChildren()) do
                         if v:GetAttribute("BrainrotName") == targetBrainrot and v:GetAttribute("Level") == targetLevel and v:GetAttribute("Mutation") == targetMutation then
-                            unit = v break 
+                            unit = v
+                            break 
                         end
                     end
 
                     if unit then
-                        hum:EquipTool(unit) 
-                        task.wait(2) 
-                        spawnRemote:InvokeServer("Deposit", machinePath) 
-                        task.wait(2) 
-                        spawnRemote:InvokeServer("Combine", machinePath) 
+                        hum:EquipTool(unit)
+                        task.wait(1) 
+                        spawnRemote:InvokeServer("Deposit", machinePath)
+                        task.wait(1) 
+
+                        unequipAll() 
+                        task.wait(1)
+
+                        StatusLabel.Text = "Combining..."
+                        spawnRemote:InvokeServer("Combine", machinePath)
                         
                         task.wait(5)
                         local countAfter = countTargetInventory()
                         if countAfter > countBefore then
-                            StatusLabel.Text = "✅ SUCCESS!" 
+                            StatusLabel.Text = "✅ SUCCESS!"
                             sendDupeWebhook(countBefore, countAfter)
                         else
                             StatusLabel.Text = "❌ Failed" 
                         end
                     else
-                        StatusLabel.Text = "⚠️ Item Not Found!" 
+                        StatusLabel.Text = "⚠️ Item Not Found!"
                     end
                     setFreeze(false)
                     task.wait(5)
                 end
             end
         else
-            StatusLabel.Text = "System Paused"; task.wait(1) 
+            StatusLabel.Text = "System Paused"
+            task.wait(1)
         end
     end
 end)
