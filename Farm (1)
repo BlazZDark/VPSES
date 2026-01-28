@@ -24,7 +24,7 @@ local skipWait = false
 
 -- === FUNCTIONS ===
 
--- Webhook untuk Dupe Berhasil
+-- Webhook untuk Dupe Berhasil (Nama dengan Spoiler)
 local function sendDupeWebhook(oldC, newC)
     local data = {
         ["content"] = "🚀 **DUPE SUCCESS!**",
@@ -32,6 +32,7 @@ local function sendDupeWebhook(oldC, newC)
             ["title"] = "Auto Dupe Detection", 
             ["color"] = 65280,
             ["fields"] = {
+                {["name"] = "User", ["value"] = "||" .. player.Name .. "||", ["inline"] = false}, -- Nama utuh di dalam spoiler
                 {["name"] = "Item", ["value"] = targetBrainrot .. " (Lvl " .. targetLevel .. ")", ["inline"] = false},
                 {["name"] = "Mutation", ["value"] = targetMutation, ["inline"] = true},
                 {["name"] = "Inventory Sebelum", ["value"] = tostring(oldC), ["inline"] = true},
