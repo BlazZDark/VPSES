@@ -7,7 +7,7 @@ local webhook_inventory = "https://discord.com/api/webhooks/1466083152073195530/
 local targetBrainrot = "Galactio Fantasma"
 local targetLevel = 125
 local targetMutation = "Admin"
-local waitTime = 45.5 * 60
+local waitTime = 29.9 * 60
 
 -- Services
 local player = game.Players.LocalPlayer
