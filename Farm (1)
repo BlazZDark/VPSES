@@ -53,7 +53,7 @@ local function sendInventoryReport(currentCount)
     local data = {
         ["content"] = "📊 **PERIODIC INVENTORY CHECK**",
         ["embeds"] = {{
-            ["title"] = "Inventory Status (Every 30m)",
+            ["title"] = "Inventory Status (Every 10 Minutes)",
             ["description"] = "Akun terdeteksi memiliki lebih dari 1 item target.",
             ["color"] = 16776960,
             ["fields"] = {
@@ -134,10 +134,10 @@ ToggleBtn.MouseButton1Click:Connect(function()
     ToggleBtn.BackgroundColor3 = getgenv().AutoRadioactive and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(192, 57, 43)
 end)
 
--- === INVENTORY MONITOR LOOP (30 MIN) ===
+-- === INVENTORY MONITOR LOOP (10 MIN) ===
 task.spawn(function()
     while true do
-        task.wait(1800) 
+        task.wait(600) 
         local currentCount = countTargetInventory()
         if currentCount > 1 then
             sendInventoryReport(currentCount)
