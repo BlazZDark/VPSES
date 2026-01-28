@@ -1,201 +1,194 @@
-task.wait(2) [cite: 1]
+task.wait(1)
 -- --- KONFIGURASI GLOBAL ---
-getgenv().AutoTradeVIP = false    
-getgenv().AutoTradePlus = false   
-getgenv().AutoTradeBahan = false  
-getgenv().AutoTradeAdmin = false -- Fitur Baru
+getgenv().AutoTradeGalactio = false  
 _G.AutoTradeEnabled = false 
 getgenv().nickname = "AkbarSiRaja_283"
 
 local player = game.Players.LocalPlayer
 local coreGui = game:GetService("CoreGui")
 local VIM = game:GetService("VirtualInputManager")
-local RS = game:GetService("ReplicatedStorage")
 local UIS = game:GetService("UserInputService")
 local lp = player
 
--- --- FITUR TAMBAHAN: ANTI-AFK ---
-task.spawn(function()
-    local bb = game:GetService("VirtualUser")
-    lp.Idled:Connect(function()
-        bb:CaptureController()
-        bb:ClickButton2(Vector2.new())
-    end)
-end) [cite: 1]
-
--- --- FITUR TAMBAHAN: INSTANT INTERACT ---
-task.spawn(function()
-    game:GetService("RunService").Stepped:Connect(function()
-        for _, v in pairs(workspace:GetDescendants()) do [cite: 2]
-            if v:IsA("ProximityPrompt") then
-                v.HoldDuration = 0
-            end
-        end
-    end)
-end) [cite: 2]
-
--- --- 1. FUNCTION: AUTO ACCEPT ---
+-- --- 1. FUNCTION: UNEQUIP ---
 local function unequipAll()
-    local character = lp.Character
-    if character then
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        if humanoid then [cite: 3]
-            humanoid:UnequipTools()
-        end
+    if lp.Character then
+        local humanoid = lp.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then humanoid:UnequipTools() end
     end
-end [cite: 3]
-
-local function clickAccept()
-    if not _G.AutoTradeEnabled then return end
-    if not lp.PlayerGui:FindFirstChild("TradeRequest") then return end
-    
-    local viewport = workspace.CurrentCamera.ViewportSize
-    local x = viewport.X * 0.43
-    local y = viewport.Y * 0.62
-    
-    VIM:SendMouseButtonEvent(x, y, 0, true, game, 0) [cite: 4]
-    task.wait(0.05)
-    VIM:SendMouseButtonEvent(x, y, 0, false, game, 0) [cite: 4]
-    
-    task.wait(0.1)
-    unequipAll()
 end
 
+-- --- 2. FUNCTION: HITUNG ITEM (DIJAMIN AKURAT) ---
+local function getInventoryData()
+    local adminItems = {}
+    local backpack = player.Backpack:GetChildren()
+    local character = player.Character and player.Character:GetChildren() or {}
+    
+    for _, item in pairs(backpack) do
+        if item:IsA("Tool") and item:GetAttribute("BrainrotName") == "Galactio Fantasma" and item:GetAttribute("Mutation") == "Admin" then
+            table.insert(adminItems, item)
+        end
+    end
+    
+    for _, item in pairs(character) do
+        if item:IsA("Tool") and item:GetAttribute("BrainrotName") == "Galactio Fantasma" and item:GetAttribute("Mutation") == "Admin" then
+            table.insert(adminItems, item)
+        end
+    end
+    
+    return adminItems
+end
+
+-- --- 3. MAIN TRADE LOGIC (ULTRA SAFETY) ---
 task.spawn(function()
-    while true do
-        task.wait(0.5)
-        if _G.AutoTradeEnabled then
-            clickAccept()
+    while task.wait(0.8) do -- Jeda sedikit lebih lama agar server tidak rate-limit
+        if getgenv().AutoTradeGalactio then
+            local currentItems = getInventoryData()
+            
+            -- PROTEKSI TOTAL: Jika sisa 1 atau kurang, langsung MATIKAN fungsi.
+            if #currentItems <= 1 then
+                getgenv().AutoTradeGalactio = false
+                unequipAll()
+                warn("SAFETY TRIGGERED: Hanya tersisa 1 item. Sistem dimatikan.")
+                continue
+            end
+
+            -- CEK TARGET
+            local targetPlr = game.Players:FindFirstChild(getgenv().nickname)
+            if not targetPlr or not targetPlr.Character or not targetPlr.Character:FindFirstChild("HumanoidRootPart") then
+                continue 
+            end
+
+            -- AMBIL ITEM (Selalu sisakan satu, ambil yang index terakhir)
+            local itemToSend = currentItems[#currentItems] 
+            
+            if itemToSend and itemToSend.Parent then
+                local hum = player.Character:FindFirstChildOfClass("Humanoid")
+                if hum then
+                    -- Equip dan tunggu sebentar
+                    hum:EquipTool(itemToSend)
+                    task.wait(0.4) 
+                    
+                    -- VERIFIKASI ULANG SETELAH EQUIP
+                    local finalCheck = getInventoryData()
+                    if #finalCheck > 1 then
+                        local prompt = targetPlr.Character.HumanoidRootPart:FindFirstChild("TradePrompt")
+                        if prompt then 
+                            fireproximityprompt(prompt) 
+                        end
+                    else
+                        -- Jika tiba-tiba sisa 1 saat mau kirim, batalkan!
+                        unequipAll()
+                        getgenv().AutoTradeGalactio = false
+                    end
+                end
+            end
         end
     end
 end)
 
--- --- 2. FUNCTION: TRADE LOGIC ---
-local daftarCelestial = {["Job Job Job Sahur"]=true,["Dug Dug Dug"]=true,["Bisonte Giuppitere"]=true,["Alessio"]=true,["Esok Sekolah"]=true,["Diamantusa"]=true} [cite: 5]
-
+-- --- 4. AUTO ACCEPT LOOP ---
 task.spawn(function()
-    while task.wait(1) do
-        if getgenv().AutoTradeVIP or getgenv().AutoTradePlus or getgenv().AutoTradeBahan or getgenv().AutoTradeAdmin then [cite: 5]
-            local targetItem = nil
-            for _, item in pairs(player.Backpack:GetChildren()) do [cite: 6]
-                local bN = item:GetAttribute("BrainrotName")
-                local bL = item:GetAttribute("Level")
-                local mut = item:GetAttribute("Mutation")
-        
-                if bN and bL and mut then [cite: 6]
-                    -- LOGIKA ADMIN (GALACTIO FANTASMA)
-                    if getgenv().AutoTradeAdmin and mut == "Admin" and bN == "Galactio Fantasma" then
-                        targetItem = item
-                        break
-                    -- LOGIKA HACKER
-                    elseif mut == "Hacker" then [cite: 6]
-                        if getgenv().AutoTradeVIP and bL == 125 and bN ~= "Esok Sekolah" and bN ~= "Diamantusa" and daftarCelestial[bN] then [cite: 6]
-                            targetItem = item; break [cite: 7]
-                        elseif getgenv().AutoTradePlus and bL == 125 and (bN == "Esok Sekolah" or bN == "Diamantusa") then [cite: 7]
-                            targetItem = item; break [cite: 8]
-                        elseif getgenv().AutoTradeBahan and bL < 125 and daftarCelestial[bN] then [cite: 8]
-                            targetItem = item; break [cite: 9]
-                        end
-                    end
-                end
-            end
-
-            if targetItem then
-                local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid") [cite: 9, 10]
-                if hum and not player.Character:FindFirstChild(targetItem.Name) then [cite: 10]
-                    hum:EquipTool(targetItem)
-                end
-                local targetPlr = game.Players:FindFirstChild(getgenv().nickname) [cite: 10]
-                if targetPlr and targetPlr.Character then [cite: 10]
-                    local p = targetPlr.Character.HumanoidRootPart:FindFirstChild("TradePrompt") [cite: 11]
-                    if p then fireproximityprompt(p) end [cite: 11]
-                end
+    while task.wait(0.5) do
+        if _G.AutoTradeEnabled then
+            local requestUI = lp.PlayerGui:FindFirstChild("TradeRequest")
+            if requestUI then
+                local viewport = workspace.CurrentCamera.ViewportSize
+                VIM:SendMouseButtonEvent(viewport.X * 0.43, viewport.Y * 0.62, 0, true, game, 0)
+                task.wait(0.05)
+                VIM:SendMouseButtonEvent(viewport.X * 0.43, viewport.Y * 0.62, 0, false, game, 0)
+                task.wait(0.2)
+                unequipAll()
             end
         end
     end
 end)
 
 -- --- UI SETUP ---
-if coreGui:FindFirstChild("HackerTradeV7") then coreGui.HackerTradeV7:Destroy() end [cite: 11]
+if coreGui:FindFirstChild("GalactioFinalV4") then coreGui.GalactioFinalV4:Destroy() end
 local screenGui = Instance.new("ScreenGui", coreGui)
-screenGui.Name = "HackerTradeV7"
+screenGui.Name = "GalactioFinalV4"
 
 local mainFrame = Instance.new("Frame", screenGui)
-mainFrame.Size = UDim2.new(0, 240, 0, 420) -- Ukuran disesuaikan untuk tombol tambahan
-mainFrame.Position = UDim2.new(0.5, -120, 0.3, 0) [cite: 12]
+mainFrame.Size = UDim2.new(0, 240, 0, 300)
+mainFrame.Position = UDim2.new(0.5, -120, 0.3, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 mainFrame.Active, mainFrame.Draggable = true, true
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
-
-UIS.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == Enum.KeyCode.J then
-        mainFrame.Visible = not mainFrame.Visible
-    end
-end) [cite: 12]
-
-local stroke = Instance.new("UIStroke", mainFrame)
-stroke.Color = Color3.fromRGB(255, 50, 50)
-stroke.Thickness = 2
+Instance.new("UICorner", mainFrame)
 
 local layout = Instance.new("UIListLayout", mainFrame)
 layout.Padding = UDim.new(0, 6)
 layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-layout.SortOrder = Enum.SortOrder.LayoutOrder
 
 local title = Instance.new("TextLabel", mainFrame)
 title.Size = UDim2.new(1, 0, 0, 40)
-title.Text = "TRADE SYSTEM (Press J to Hide)"
+title.Text = "PHONK ONTOP"
 title.TextColor3 = Color3.new(1, 1, 1)
 title.Font = Enum.Font.GothamBold
 title.BackgroundTransparency = 1
-title.TextSize = 11
 
-local function createBtn(txt, toggleKey, isGlobal, customColor)
-    local btn = Instance.new("TextButton", mainFrame) [cite: 13]
-    btn.Size = UDim2.new(0.9, 0, 0, 30)
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    btn.TextColor3 = Color3.new(1, 1, 1)
+local function createBtn(txt, varName, isGlobal, customColor)
+    local btn = Instance.new("TextButton", mainFrame)
+    btn.Size = UDim2.new(0.9, 0, 0, 35)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 10
-    btn.Text = txt .. ": " .. (isGlobal and (_G[toggleKey] and "ON" or "OFF") or (getgenv()[toggleKey] and "ON" or "OFF"))
     Instance.new("UICorner", btn)
+
+    task.spawn(function()
+        while task.wait(0.2) do
+            local val = isGlobal and _G[varName] or getgenv()[varName]
+            btn.Text = txt .. ": " .. (val and "ON" or "OFF")
+            btn.BackgroundColor3 = val and (customColor or Color3.fromRGB(50, 200, 50)) or Color3.fromRGB(40, 40, 40)
+        end
+    end)
 
     btn.MouseButton1Click:Connect(function()
         if isGlobal then
-            _G[toggleKey] = not _G[toggleKey] [cite: 14]
-            btn.Text = txt .. ": " .. (_G[toggleKey] and "ON" or "OFF")
-            btn.BackgroundColor3 = _G[toggleKey] and (customColor or Color3.fromRGB(50, 200, 50)) or Color3.fromRGB(40, 40, 40)
+            _G[varName] = not _G[varName]
         else
-            getgenv()[toggleKey] = not getgenv()[toggleKey] [cite: 14]
-            btn.Text = txt .. ": " .. (getgenv()[toggleKey] and "ON" or "OFF")
-            btn.BackgroundColor3 = getgenv()[toggleKey] and (customColor or Color3.fromRGB(255, 105, 180)) or Color3.fromRGB(40, 40, 40) [cite: 15]
+            if not getgenv()[varName] then -- Mau nyalain
+                task.wait(2)
+                if #getInventoryData() <= 1 then warn("Safety: Only 1 left!") return end
+            end
+            getgenv()[varName] = not getgenv()[varName]
         end
     end)
-    return btn
 end
 
--- Tombol-Tombol
-createBtn("TRADE ADMIN GALACTIO", "AutoTradeAdmin", false, Color3.fromRGB(255, 0, 0))
-createBtn("TRADE HACKER 125", "AutoTradeVIP", false)
-createBtn("TRADE HACKER 125++", "AutoTradePlus", false)
-createBtn("TRADE HACKER < 125", "AutoTradeBahan", false)
-createBtn("AUTO ACCEPT", "AutoTradeEnabled", true)
+createBtn("SEND (R)", "AutoTradeGalactio", false, Color3.fromRGB(138, 43, 226))
+createBtn("AUTO ACCEPT (Q)", "AutoTradeEnabled", true, Color3.fromRGB(0, 150, 255))
 
-local antiAfkBtn = createBtn("ANTI-AFK", "", false, Color3.fromRGB(0, 150, 255))
-antiAfkBtn.Text = "ANTI-AFK: ACTIVE"
-antiAfkBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
-
-local instantBtn = createBtn("INSTANT INTERACT", "", false, Color3.fromRGB(255, 165, 0))
-instantBtn.Text = "INSTANT INTERACT: ACTIVE"
-instantBtn.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
-
-local userBox = Instance.new("TextBox", mainFrame) [cite: 15]
+local userBox = Instance.new("TextBox", mainFrame)
 userBox.Size = UDim2.new(0.9, 0, 0, 35)
 userBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+userBox.TextColor3 = Color3.new(1, 1, 1)
 userBox.Text = getgenv().nickname
-userBox.TextColor3 = Color3.new(1, 1, 1) [cite: 16]
-userBox.Font = Enum.Font.Gotham
 userBox.PlaceholderText = "Target Nickname..."
-userBox.TextSize = 11
 Instance.new("UICorner", userBox)
-userBox.FocusLost:Connect(function() getgenv().nickname = userBox.Text end) [cite: 16]
+userBox.FocusLost:Connect(function() getgenv().nickname = userBox.Text end)
+
+local footer = Instance.new("TextLabel", mainFrame)
+footer.Size = UDim2.new(1, 0, 0, 70)
+footer.Text = "R: Send (Safety 2s) | Q: Accept\nJ: Hide UI\nStatus: Always leaves 1 item\nTarget: AkbarSiRaja_283"
+footer.TextColor3 = Color3.fromRGB(150, 150, 150)
+footer.BackgroundTransparency = 1
+footer.TextSize = 8
+
+-- --- KEYBIND HANDLER ---
+UIS.InputBegan:Connect(function(input, processed)
+    if processed then return end 
+    
+    if input.KeyCode == Enum.KeyCode.R then
+        if not getgenv().AutoTradeGalactio then
+            task.wait(2) -- Delay pengecekan sesuai request
+            if #getInventoryData() <= 1 then return end
+        end
+        getgenv().AutoTradeGalactio = not getgenv().AutoTradeGalactio
+        
+    elseif input.KeyCode == Enum.KeyCode.Q then
+        _G.AutoTradeEnabled = not _G.AutoTradeEnabled
+        
+    elseif input.KeyCode == Enum.KeyCode.J then
+        mainFrame.Visible = not mainFrame.Visible
+    end
+end)
