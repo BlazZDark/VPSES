@@ -1,226 +1,246 @@
 task.wait(5)
--- === CONFIGURATION & WEBHOOK ===
+local Players = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+local UIS = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local player = Players.LocalPlayer
+
+-- // CONFIGURATION // --
 getgenv().AutoRadioactive = true
-local webhook_dupe = "https://discord.com/api/webhooks/1433619088588017684/02wMrYk7vdbmgEz46dCdDiJrj9QONW7SKqAibBQdwO__JaFuRycX_6L-nmLSpJd_-Xb9" 
+local waitTime = 35 * 60
+local skipWait = false
+local targetPosSpawn = Vector3.new(138, 3, 137)
+
+local webhook_dupe = "https://discord.com/api/webhooks/1433619088588017684/02wMrYk7vdbmgEz46dCdDiJrj9QONW7SKqAibBQdwO__JaFuRycX_6L-nmLSpJd_-Xb9"
 local webhook_inventory = "https://discord.com/api/webhooks/1466083152073195530/NvOMzqOKfzUKn-rNw-4mx6dDxVwe0gPLfMJMut1QSRFTVI5OK5x-APBf72tJMCNZWvYQ"
 
-local targetBrainrot = "Galactio Fantasma"
-local targetLevel = 125
-local targetMutation = "Admin"
-local waitTime = 29.9 * 60
+local targetNames = {"Bulbito", "Traktorito", "Burgerini"}
+local commonNames = {"Noobini", "Lirili", "Cheese", "Frulli", "Talpa", "Svinino", "Kiwi", "Corni"}
 
--- Services
-local player = game.Players.LocalPlayer
-local RS = game:GetService("ReplicatedStorage")
-local coreGui = game:GetService("CoreGui")
-local HttpService = game:GetService("HttpService")
-local UIS = game:GetService("UserInputService")
+local spawnRemote = RS:WaitForChild("Packages"):WaitForChild("Net"):WaitForChild("RF/SpawnMachine.Action")
+local machinePath = workspace:WaitForChild("SpawnMachines"):WaitForChild("Default")
 
-local spawnRemote = RS:WaitForChild("Packages"):WaitForChild("Net"):WaitForChild("RF/SpawnMachine.Action") 
-local machinePath = workspace:WaitForChild("SpawnMachines"):WaitForChild("Default") 
-local targetPosSpawn = Vector3.new(138, 3, 78) 
+-- // UI STATUS // --
+local UI_Status
+local function createUI()
+    local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
+    sg.Name = "DupePremiumUI"
+    
+    local f = Instance.new("Frame", sg)
+    f.Size = UDim2.new(0, 220, 0, 100)
+    f.Position = UDim2.new(0.8, 0, 0.2, 0)
+    f.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    f.Active = true
+    f.Draggable = true
+    Instance.new("UICorner", f)
+    
+    UI_Status = Instance.new("TextLabel", f)
+    UI_Status.Size = UDim2.new(1, 0, 1, 0)
+    UI_Status.BackgroundTransparency = 1
+    UI_Status.TextColor3 = Color3.new(1, 1, 1)
+    UI_Status.Font = Enum.Font.GothamBold
+    UI_Status.TextScaled = true
+    UI_Status.Text = "Starting..."
+end
+createUI()
 
-local skipWait = false
-
--- === FUNCTIONS ===
-
--- Webhook untuk Dupe Berhasil (Nama dengan Spoiler)
-local function sendDupeWebhook(oldC, newC)
-    local data = {
-        ["content"] = "🚀 **DUPE SUCCESS!**",
-        ["embeds"] = {{
-            ["title"] = "Auto Dupe Detection", 
-            ["color"] = 65280,
-            ["fields"] = {
-                {["name"] = "User", ["value"] = "||" .. player.Name .. "||", ["inline"] = false}, -- Nama utuh di dalam spoiler
-                {["name"] = "Item", ["value"] = targetBrainrot .. " (Lvl " .. targetLevel .. ")", ["inline"] = false},
-                {["name"] = "Mutation", ["value"] = targetMutation, ["inline"] = true},
-                {["name"] = "Inventory Sebelum", ["value"] = tostring(oldC), ["inline"] = true},
-                {["name"] = "Inventory Sesudah", ["value"] = tostring(newC), ["inline"] = true},
-                {["name"] = "Keuntungan", ["value"] = "+" .. tostring(newC - oldC), ["inline"] = true} 
-            },
-            ["footer"] = {["text"] = "Dupe Monitor • " .. os.date("%X")}
-        }}
-    }
-    local request = syn and syn.request or http_request or request or HttpPost
-    if request then
-        request({Url = webhook_dupe, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = HttpService:JSONEncode(data)}) 
-    end
+local function setStatus(msg)
+    if UI_Status then UI_Status.Text = msg end
+    print("[SYSTEM]: " .. msg)
 end
 
--- Webhook untuk Laporan Inventaris
-local function sendInventoryReport(currentCount)
-    local data = {
-        ["content"] = "📊 **PERIODIC INVENTORY CHECK**",
-        ["embeds"] = {{
-            ["title"] = "Inventory Status (Every 10 Minutes)",
-            ["description"] = "Akun terdeteksi memiliki lebih dari 1 item target.",
-            ["color"] = 16776960,
-            ["fields"] = {
-                {["name"] = "Target Item", ["value"] = targetBrainrot, ["inline"] = true},
-                {["name"] = "Jumlah Saat Ini", ["value"] = "**" .. tostring(currentCount) .. "**", ["inline"] = true},
-                {["name"] = "User", ["value"] = player.Name, ["inline"] = false}
-            },
-            ["footer"] = {["text"] = "Inventory Monitor • " .. os.date("%X")}
-        }}
-    }
-    local request = syn and syn.request or http_request or request or HttpPost
-    if request and (webhook_inventory ~= "" and not webhook_inventory:find("URL_WEBHOOK")) then
-        request({Url = webhook_inventory, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = HttpService:JSONEncode(data)})
-    end
-end
-
-local function countTargetInventory()
-    local total = 0
-    local locations = {player.Backpack:GetChildren(), (player.Character and player.Character:GetChildren() or {})}
-    for _, list in pairs(locations) do
-        for _, item in pairs(list) do
-            if item:IsA("Tool") then
-                local bName = item:GetAttribute("BrainrotName") or item.Name 
-                if bName == targetBrainrot and item:GetAttribute("Level") == targetLevel and item:GetAttribute("Mutation") == targetMutation then
-                    total = total + 1
-                end
-            end
+-- // CORE UTILITIES // --
+local function safeWebhook(url, data)
+    if url == "" or url:find("URL_WEBHOOK") then return end
+    task.spawn(function()
+        local request = (syn and syn.request) or (http and http.request) or http_request or request
+        if request then
+            pcall(function()
+                request({
+                    Url = url,
+                    Method = "POST",
+                    Headers = {["Content-Type"] = "application/json"},
+                    Body = HttpService:JSONEncode(data)
+                })
+            end)
         end
-    end
-    return total
+    end)
+end
+
+local function getToolInfo(tool)
+    return {
+        Name = tool:GetAttribute("BrainrotName") or tool.Name,
+        Level = tostring(tool:GetAttribute("Level") or 0),
+        Mutation = tostring(tool:GetAttribute("Mutation") or "None")
+    }
 end
 
 local function unequipAll()
-    local char = player.Character
-    if char then
-        local hum = char:FindFirstChildOfClass("Humanoid")
+    if player.Character then
+        local hum = player.Character:FindFirstChildOfClass("Humanoid")
         if hum then hum:UnequipTools() end
     end
 end
 
-local function setFreeze(status)
-    local char = player.Character
-    if char and char:FindFirstChild("HumanoidRootPart") then
-        char.HumanoidRootPart.Anchored = status
+-- // INVENTORY LOGIC // --
+local function countTargets()
+    local count = 0
+    unequipAll()
+    for _, v in pairs(player.Backpack:GetChildren()) do
+        local n = v:GetAttribute("BrainrotName") or v.Name
+        if n:find("Bulbito") or n:find("Burgerini") or n:find("Traktorito") then
+            count = count + 1
+        end
     end
+    return count
 end
 
--- === KEYBIND LISTENER (P) ===
-UIS.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == Enum.KeyCode.P then
-        if getgenv().AutoRadioactive then
-            skipWait = true
-            warn("Keybind P Ditekan: Skip waiting time...")
+local function findItem(itemType)
+    unequipAll()
+    task.wait(0.3)
+    local items = player.Backpack:GetChildren()
+    
+    if itemType == "TARGET" then
+        for _, v in pairs(items) do
+            local info = getToolInfo(v)
+            if string.find(info.Name, "Bulbito") or string.find(info.Name, "Traktorito") then return v end
         end
+        for _, v in pairs(items) do
+            local info = getToolInfo(v)
+            if string.find(info.Name, "Burgerini") then return v end
+        end
+    elseif itemType == "COMMON" then
+        for _, v in pairs(items) do
+            local info = getToolInfo(v)
+            for _, key in pairs(commonNames) do
+                if string.find(info.Name, key) and (tonumber(info.Level) >= 125 or tonumber(info.Level) == 0) then return v end
+            end
+        end
+    end
+    return nil
+end
+
+-- // WEBHOOK PAYLOADS // --
+local function sendDupeWebhook(beforeC, afterC, tool)
+    local info = getToolInfo(tool)
+    local payload = {
+        content = "🚀 **DUPE SUCCESS!**",
+        embeds = {{
+            title = "Auto Dupe Detection",
+            color = 65280,
+            fields = {
+                {name="User", value="||"..player.Name.."||", inline=false},
+                {name="Item", value=info.Name.." (Lvl "..info.Level..")", inline=false},
+                {name="Mutation", value=info.Mutation, inline=true},
+                {name="Inventory Sebelum", value=tostring(beforeC), inline=true},
+                {name="Inventory Sesudah", value=tostring(afterC), inline=true},
+                {name="Keuntungan", value="+"..tostring(afterC-beforeC), inline=true},
+            },
+            footer = {text="Dupe Monitor • "..os.date("%X")}
+        }}
+    }
+    safeWebhook(webhook_dupe, payload)
+end
+
+local function sendInventoryReport(count)
+    local payload = {
+        content = "📊 **PERIODIC INVENTORY CHECK**",
+        embeds = {{
+            title = "Inventory Status (Every 10 Minutes)",
+            description = "Terdeteksi target Brainrot.",
+            color = 16776960,
+            fields = {
+                {name="Target", value="Bulbito / Burgerini", inline=true},
+                {name="Jumlah", value=tostring(count), inline=true},
+                {name="User", value=player.Name, inline=false},
+            },
+            footer = {text="Inventory Monitor • "..os.date("%X")}
+        }}
+    }
+    safeWebhook(webhook_inventory, payload)
+end
+
+-- // MAIN LOOPS // --
+UIS.InputBegan:Connect(function(input, gp)
+    if not gp and input.KeyCode == Enum.KeyCode.P then
+        skipWait = true
+        setStatus("SKIPPING WAIT...")
     end
 end)
 
--- === UI SETUP ===
-if coreGui:FindFirstChild("RadioactiveTimerUI") then coreGui:FindFirstChild("RadioactiveTimerUI"):Destroy() end
-local sg = Instance.new("ScreenGui", coreGui); sg.Name = "RadioactiveTimerUI" 
-local MainFrame = Instance.new("Frame", sg)
-MainFrame.Size = UDim2.new(0, 220, 0, 150); MainFrame.Position = UDim2.new(0.8, 0, 0.5, 0) 
-MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30); MainFrame.Active = true; MainFrame.Draggable = true 
-Instance.new("UICorner", MainFrame)
-
-local StatusLabel = Instance.new("TextLabel", MainFrame)
-StatusLabel.Size = UDim2.new(1, 0, 0, 40); StatusLabel.Position = UDim2.new(0, 0, 0.2, 0) 
-StatusLabel.TextColor3 = Color3.fromRGB(0, 170, 255); StatusLabel.BackgroundTransparency = 1; StatusLabel.Font = Enum.Font.Gotham 
-
-local ToggleBtn = Instance.new("TextButton", MainFrame)
-ToggleBtn.Size = UDim2.new(0.8, 0, 0, 30); ToggleBtn.Position = UDim2.new(0.1, 0, 0.6, 0) 
-ToggleBtn.Text = "AUTO DUPE: ON"; ToggleBtn.BackgroundColor3 = Color3.fromRGB(46, 204, 113) 
-Instance.new("UICorner", ToggleBtn)
-
-ToggleBtn.MouseButton1Click:Connect(function()
-    getgenv().AutoRadioactive = not getgenv().AutoRadioactive
-    ToggleBtn.Text = getgenv().AutoRadioactive and "AUTO DUPE: ON" or "AUTO DUPE: OFF"
-    ToggleBtn.BackgroundColor3 = getgenv().AutoRadioactive and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(192, 57, 43)
-end)
-
--- === INVENTORY MONITOR LOOP (10 MIN) ===
 task.spawn(function()
     while true do
-        task.wait(600) 
-        local currentCount = countTargetInventory()
-        if currentCount > 1 then
-            sendInventoryReport(currentCount)
-        end
+        task.wait(600)
+        local total = countTargets()
+        if total >= 1 then sendInventoryReport(total) end
     end
 end)
 
--- === MAIN LOOP ===
 task.spawn(function()
     while true do
-        if getgenv().AutoRadioactive then
-            local timeLeft = waitTime
-            local unequipTriggered = false
-            skipWait = false
-            
-            while timeLeft > 0 and getgenv().AutoRadioactive do
-                if skipWait then break end
-                StatusLabel.Text = "Next Dupe: " .. math.floor(timeLeft/60) .. "m " .. (timeLeft%60) .. "s"
-                if timeLeft <= 30 and not unequipTriggered then
-                    unequipAll()
-                    unequipTriggered = true
-                end
-                task.wait(1)
-                timeLeft = timeLeft - 1
-            end
-
-            if getgenv().AutoRadioactive then
-                local char = player.Character
-                local root = char and char:FindFirstChild("HumanoidRootPart")
-                local hum = char and char:FindFirstChildOfClass("Humanoid")
-                
-                if root and hum then
-                    StatusLabel.Text = "Teleporting..." 
-                    root.CFrame = CFrame.new(targetPosSpawn)
-                    task.wait(0.5)
-                    setFreeze(true)
-
-                    spawnRemote:InvokeServer("Withdraw", machinePath)
-                    task.wait(1)
-
-                    StatusLabel.Text = "Cleaning Hands..."
-                    unequipAll()
-                    task.wait(1)
-
-                    local countBefore = countTargetInventory()
-                    local unit = nil
-                    for _, v in pairs(player.Backpack:GetChildren()) do
-                        if v:GetAttribute("BrainrotName") == targetBrainrot and v:GetAttribute("Level") == targetLevel and v:GetAttribute("Mutation") == targetMutation then
-                            unit = v
-                            break 
-                        end
-                    end
-
-                    if unit then
-                        hum:EquipTool(unit)
-                        task.wait(1) 
-                        spawnRemote:InvokeServer("Deposit", machinePath)
-                        task.wait(1) 
-
-                        unequipAll() 
-                        task.wait(1)
-
-                        StatusLabel.Text = "Combining..."
-                        spawnRemote:InvokeServer("Combine", machinePath)
-                        
-                        task.wait(5)
-                        local countAfter = countTargetInventory()
-                        if countAfter > countBefore then
-                            StatusLabel.Text = "✅ SUCCESS!"
-                            sendDupeWebhook(countBefore, countAfter)
-                        else
-                            StatusLabel.Text = "❌ Failed" 
-                        end
-                    else
-                        StatusLabel.Text = "⚠️ Item Not Found!"
-                    end
-                    setFreeze(false)
-                    task.wait(5)
-                end
-            end
-        else
-            StatusLabel.Text = "System Paused"
+        if not getgenv().AutoRadioactive then 
+            setStatus("PAUSED")
             task.wait(1)
+            continue 
+        end
+
+        local timer = waitTime
+        skipWait = false
+        while timer > 0 and not skipWait do
+            setStatus("Next Dupe: " .. math.floor(timer/60) .. "m " .. (timer%60) .. "s")
+            task.wait(1)
+            timer = timer - 1
+            if not getgenv().AutoRadioactive then break end
+        end
+
+        local char = player.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+        if root and hum then
+            root.CFrame = CFrame.new(targetPosSpawn)
+            task.wait(2)
+            root.Anchored = true
+            
+            setStatus("Withdrawing...")
+            spawnRemote:InvokeServer("Withdraw", machinePath)
+            task.wait(2)
+
+            local beforeCount = countTargets()
+            local targetItem = findItem("TARGET")
+            local commonItem = findItem("COMMON")
+
+            if targetItem and commonItem then
+                setStatus("Depositing: " .. getToolInfo(targetItem).Name)
+                
+                hum:EquipTool(targetItem)
+                task.wait(2)
+                spawnRemote:InvokeServer("Deposit", machinePath)
+                
+                unequipAll()
+                task.wait(2)
+                hum:EquipTool(commonItem)
+                task.wait(2)
+                spawnRemote:InvokeServer("Deposit", machinePath)
+                
+                task.wait(2)
+                setStatus("Combining...")
+                spawnRemote:InvokeServer("Combine", machinePath)
+                task.wait(5)
+
+                local afterCount = countTargets()
+                if afterCount > beforeCount then
+                    setStatus("✨ SUCCESS! ✨")
+                    sendDupeWebhook(beforeCount, afterCount, targetItem)
+                else
+                    setStatus("Fail: No Gain")
+                end
+            else
+                setStatus("Missing Items!")
+            end
+            
+            root.Anchored = false
+            task.wait(2)
         end
     end
 end)
