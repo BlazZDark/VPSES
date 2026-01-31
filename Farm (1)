@@ -7,7 +7,7 @@ local player = Players.LocalPlayer
 
 -- // CONFIGURATION // --
 getgenv().AutoRadioactive = true
-local waitTime = 44 * 60
+local waitTime = 30 * 60
 local skipWait = false
 local targetPosSpawn = Vector3.new(138, 3, 137)
 
