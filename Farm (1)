@@ -113,7 +113,7 @@ local function findItem(itemType)
         for _, v in pairs(items) do
             local info = getToolInfo(v)
             for _, key in pairs(commonNames) do
-                if string.find(info.Name, key) and (tonumber(info.Level) >= 125 or tonumber(info.Level) == 0) then return v end
+                if string.find(info.Name, key) and (tonumber(info.Level) >= 150 or tonumber(info.Level) == 0) then return v end
             end
         end
     end
