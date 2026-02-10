@@ -7,7 +7,8 @@ local player = Players.LocalPlayer
 
 -- // CONFIGURATION // --
 getgenv().AutoRadioactive = true
-local waitTime = 30
+local RequiredMinutes = 60 -- Change this to how many minutes you want to wait for
+local waitTime = 30        -- Cooldown (in seconds) after finishing all machines
 local skipWait = false
 local targetPosSpawn = Vector3.new(906, 3, 10)
 local MAX_SCALE_THRESHOLD = 2.99 
@@ -55,12 +56,14 @@ local PriorityConfig = {
 local spawnRemote = RS:WaitForChild("Packages"):WaitForChild("Net"):WaitForChild("RF/SpawnMachine.Action")
 
 -- // UI STATUS // --
-local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
+local sg = game:GetService("CoreGui"):FindFirstChild("GalactioSoloUI") or Instance.new("ScreenGui", game:GetService("CoreGui"))
 sg.Name = "GalactioSoloUI"
+if sg:FindFirstChild("StatusFrame") then sg.StatusFrame:Destroy() end
 
 local function createUI()
     local f = Instance.new("Frame", sg)
-    f.Size = UDim2.new(0, 220, 0, 100)
+    f.Name = "StatusFrame"
+    f.Size = UDim2.new(0, 250, 0, 100)
     f.Position = UDim2.new(0.8, 0, 0.2, 0)
     f.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Instance.new("UICorner", f)
@@ -71,7 +74,7 @@ local function createUI()
     statusLabel.TextColor3 = Color3.new(1, 1, 1)
     statusLabel.Font = Enum.Font.GothamBold
     statusLabel.TextScaled = true
-    statusLabel.Text = "Script Active"
+    statusLabel.Text = "Initializing..."
     return statusLabel
 end
 
@@ -104,7 +107,6 @@ local function findBestItem()
         end
 
         if #currentCategoryItems > 0 then
-            -- 1. Money (Scale 2.0 - 2.99)
             local moneyHigh = {}
             for _, v in ipairs(currentCategoryItems) do
                 local info = getToolInfo(v)
@@ -117,7 +119,6 @@ local function findBestItem()
                 return moneyHigh[1]
             end
 
-            -- 2. Mutasi APAPUN (Scale 2.0 - 2.98)
             local highScale = {}
             for _, v in ipairs(currentCategoryItems) do
                 local info = getToolInfo(v)
@@ -130,7 +131,6 @@ local function findBestItem()
                 return highScale[1]
             end
 
-            -- 3. Mutasi APAPUN (Scale >= 2.99)
             local extremeScale = {}
             for _, v in ipairs(currentCategoryItems) do
                 local info = getToolInfo(v)
@@ -143,7 +143,6 @@ local function findBestItem()
                 return extremeScale[1]
             end
 
-            -- 4. Fallback (Di bawah 2.0)
             table.sort(currentCategoryItems, function(a, b) return getToolInfo(a).Scale > getToolInfo(b).Scale end)
             return currentCategoryItems[1]
         end
@@ -173,6 +172,8 @@ end
 
 -- // CORE LOGIC // --
 local function startMainLoop()
+    setStatus("Threshold Reached! Starting...")
+    task.wait(2)
     while true do
         if getgenv().AutoRadioactive then
             local target = findBestItem()
@@ -219,14 +220,13 @@ local function startMainLoop()
                         isProcessing = false
                         task.cancel(tpLoop)
 
-                        -- Logic Reset Jika Ada Lebih dari 1 Mesin
                         if #availableMachines > 1 and i < #availableMachines then
                             setStatus("Resetting... Waiting 5s")
                             char:BreakJoints()
-                            task.wait(5) -- Menunggu 5 detik sesuai permintaan
-                            player.CharacterAdded:Wait() -- Pastikan karakter hidup kembali
+                            task.wait(5)
+                            player.CharacterAdded:Wait()
                             task.wait(1)
-                            target = findBestItem() -- Ambil item lagi setelah respawn
+                            target = findBestItem()
                             if not target then break end
                         end
                     end
@@ -236,7 +236,6 @@ local function startMainLoop()
                 setStatus("Inventory Empty / No Matches!")
             end
             
-            -- Cooldown 30 Detik Setelah Semua Mesin Selesai
             local timer = waitTime
             skipWait = false
             while timer > 0 and not skipWait and getgenv().AutoRadioactive do
@@ -260,4 +259,40 @@ UIS.InputBegan:Connect(function(input, gp)
     end
 end)
 
-task.spawn(startMainLoop)
+-- // LOOPED TIMER CHECK // --
+local function waitForTimerAndStart()
+    local requiredSeconds = RequiredMinutes * 60
+    setStatus("Waiting for Timer > " .. RequiredMinutes .. "m")
+    
+    while true do
+        local success, timerLabel = pcall(function()
+            return workspace.SpawnMachines.Default.Main.Billboard.BillboardGui.Frame.Brainrots.AFKLuckContainer.TimeLabel
+        end)
+
+        if success and timerLabel then
+            local text = timerLabel.Text 
+            local min, sec = text:match("(%d+):(%d+)")
+            
+            if min and sec then
+                local currentSeconds = (tonumber(min) * 60) + tonumber(sec)
+                
+                if currentSeconds >= requiredSeconds then
+                    setStatus("Timer OK ("..text..")! Launching...")
+                    break 
+                else
+                    setStatus("Wait: " .. text .. " (Need "..RequiredMinutes.."m)")
+                end
+            else
+                setStatus("Parsing Error: " .. text)
+            end
+        else
+            setStatus("Searching for Timer...")
+        end
+        
+        task.wait(2)
+    end
+
+    startMainLoop()
+end
+
+task.spawn(waitForTimerAndStart)
