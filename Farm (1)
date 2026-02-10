@@ -1,246 +1,263 @@
-task.wait(5)
+task.wait(10)
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
 local UIS = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
 -- // CONFIGURATION // --
 getgenv().AutoRadioactive = true
-local waitTime = 30 * 60
+local waitTime = 30
 local skipWait = false
-local targetPosSpawn = Vector3.new(138, 3, 137)
+local targetPosSpawn = Vector3.new(906, 3, 10)
+local MAX_SCALE_THRESHOLD = 2.99 
 
-local webhook_dupe = "https://discord.com/api/webhooks/1433619088588017684/02wMrYk7vdbmgEz46dCdDiJrj9QONW7SKqAibBQdwO__JaFuRycX_6L-nmLSpJd_-Xb9"
-local webhook_inventory = "https://discord.com/api/webhooks/1466083152073195530/NvOMzqOKfzUKn-rNw-4mx6dDxVwe0gPLfMJMut1QSRFTVI5OK5x-APBf72tJMCNZWvYQ"
-
-local targetNames = {"Bulbito", "Traktorito", "Burgerini"}
-local commonNames = {"Noobini", "Lirili", "Cheese", "Frulli", "Talpa", "Svinino", "Kiwi", "Corni"}
+-- // PRIORITAS ITEM & MUTASI // --
+local PriorityConfig = {
+    {
+        Name = "Rubichetto Cubini",
+        Mutations = {"Gamer", "Lucky", "Money", "UFO","Radioactive", "Emerald", "None"}
+    },
+    {
+        Name = "Freezeti Cobretti",
+        Mutations = {"Gamer", "Lucky", "Money", "UFO","Radioactive", "Emerald", "None"}
+    },
+    {
+        Name = "Glacierello Infernetti",
+        Mutations = {"Gamer", "Lucky", "Money", "UFO","Radioactive", "Emerald", "None"}
+    },
+    {
+        Name = "Din Din Vaultero",
+        Mutations = {"Gamer", "Lucky", "Money", "UFO", "Radioactive", "None"}
+    },
+    {
+        Name = "Galactio Fantasma",
+        Mutations = {"Gamer", "Lucky", "Money", "UFO", "Radioactive", "None"}
+    },
+    {
+        Name = "Strawberry Elephant",
+        Mutations = {"Gamer", "Lucky", "Money", "UFO", "Radioactive", "None"}
+    },
+    {
+        Name = "Bulbito Bandito Traktorito",
+        Mutations = {"Gamer", "Lucky", "Money", "UFO", "Radioactive", "None"}
+    },
+    {
+        Name = "Burgerini Bearini",
+        Mutations = {"Gamer", "Lucky", "Money", "UFO", "Radioactive", "None"}
+    },
+    {
+        Name = "Martino Gravitino",
+        Mutations = {"Gamer", "Lucky", "Money", "UFO", "Radioactive", "None"}
+    }
+}
 
 local spawnRemote = RS:WaitForChild("Packages"):WaitForChild("Net"):WaitForChild("RF/SpawnMachine.Action")
-local machinePath = workspace:WaitForChild("SpawnMachines"):WaitForChild("Default")
 
 -- // UI STATUS // --
-local UI_Status
+local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
+sg.Name = "GalactioSoloUI"
+
 local function createUI()
-    local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
-    sg.Name = "DupePremiumUI"
-    
     local f = Instance.new("Frame", sg)
     f.Size = UDim2.new(0, 220, 0, 100)
     f.Position = UDim2.new(0.8, 0, 0.2, 0)
     f.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    f.Active = true
-    f.Draggable = true
     Instance.new("UICorner", f)
-    
-    UI_Status = Instance.new("TextLabel", f)
-    UI_Status.Size = UDim2.new(1, 0, 1, 0)
-    UI_Status.BackgroundTransparency = 1
-    UI_Status.TextColor3 = Color3.new(1, 1, 1)
-    UI_Status.Font = Enum.Font.GothamBold
-    UI_Status.TextScaled = true
-    UI_Status.Text = "Starting..."
+ 
+    local statusLabel = Instance.new("TextLabel", f)
+    statusLabel.Size = UDim2.new(1, 0, 1, 0)
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.TextColor3 = Color3.new(1, 1, 1)
+    statusLabel.Font = Enum.Font.GothamBold
+    statusLabel.TextScaled = true
+    statusLabel.Text = "Script Active"
+    return statusLabel
 end
-createUI()
+
+local UI_Status = createUI()
 
 local function setStatus(msg)
     if UI_Status then UI_Status.Text = msg end
-    print("[SYSTEM]: " .. msg)
 end
 
--- // CORE UTILITIES // --
-local function safeWebhook(url, data)
-    if url == "" or url:find("URL_WEBHOOK") then return end
-    task.spawn(function()
-        local request = (syn and syn.request) or (http and http.request) or http_request or request
-        if request then
-            pcall(function()
-                request({
-                    Url = url,
-                    Method = "POST",
-                    Headers = {["Content-Type"] = "application/json"},
-                    Body = HttpService:JSONEncode(data)
-                })
-            end)
-        end
-    end)
-end
-
+-- // UTILITIES // --
 local function getToolInfo(tool)
     return {
         Name = tool:GetAttribute("BrainrotName") or tool.Name,
-        Level = tostring(tool:GetAttribute("Level") or 0),
-        Mutation = tostring(tool:GetAttribute("Mutation") or "None")
+        Mutation = tostring(tool:GetAttribute("Mutation") or "None"),
+        Scale = tonumber(tool:GetAttribute("Scale")) or 1
     }
 end
 
-local function unequipAll()
-    if player.Character then
-        local hum = player.Character:FindFirstChildOfClass("Humanoid")
-        if hum then hum:UnequipTools() end
-    end
-end
-
--- // INVENTORY LOGIC // --
-local function countTargets()
-    local count = 0
-    unequipAll()
-    for _, v in pairs(player.Backpack:GetChildren()) do
-        local n = v:GetAttribute("BrainrotName") or v.Name
-        if n:find("Bulbito") or n:find("Burgerini") or n:find("Traktorito") then
-            count = count + 1
-        end
-    end
-    return count
-end
-
-local function findItem(itemType)
-    unequipAll()
-    task.wait(0.3)
+local function findBestItem()
     local items = player.Backpack:GetChildren()
-    
-    if itemType == "TARGET" then
+
+    for _, config in ipairs(PriorityConfig) do
+        local currentCategoryItems = {}
+        
         for _, v in pairs(items) do
             local info = getToolInfo(v)
-            if string.find(info.Name, "Bulbito") or string.find(info.Name, "Traktorito") then return v end
-        end
-        for _, v in pairs(items) do
-            local info = getToolInfo(v)
-            if string.find(info.Name, "Burgerini") then return v end
-        end
-    elseif itemType == "COMMON" then
-        for _, v in pairs(items) do
-            local info = getToolInfo(v)
-            for _, key in pairs(commonNames) do
-                if string.find(info.Name, key) and (tonumber(info.Level) >= 150 or tonumber(info.Level) == 0) then return v end
+            if string.find(info.Name, config.Name) then
+                table.insert(currentCategoryItems, v)
             end
+        end
+
+        if #currentCategoryItems > 0 then
+            -- 1. Money (Scale 2.0 - 2.99)
+            local moneyHigh = {}
+            for _, v in ipairs(currentCategoryItems) do
+                local info = getToolInfo(v)
+                if info.Mutation == "Money" and info.Scale >= 2 and info.Scale <= MAX_SCALE_THRESHOLD then
+                    table.insert(moneyHigh, v)
+                end
+            end
+            if #moneyHigh > 0 then
+                table.sort(moneyHigh, function(a, b) return getToolInfo(a).Scale > getToolInfo(b).Scale end)
+                return moneyHigh[1]
+            end
+
+            -- 2. Mutasi APAPUN (Scale 2.0 - 2.98)
+            local highScale = {}
+            for _, v in ipairs(currentCategoryItems) do
+                local info = getToolInfo(v)
+                if info.Scale >= 2 and info.Scale < MAX_SCALE_THRESHOLD then
+                    table.insert(highScale, v)
+                end
+            end
+            if #highScale > 0 then
+                table.sort(highScale, function(a, b) return getToolInfo(a).Scale > getToolInfo(b).Scale end)
+                return highScale[1]
+            end
+
+            -- 3. Mutasi APAPUN (Scale >= 2.99)
+            local extremeScale = {}
+            for _, v in ipairs(currentCategoryItems) do
+                local info = getToolInfo(v)
+                if info.Scale >= MAX_SCALE_THRESHOLD then
+                    table.insert(extremeScale, v)
+                end
+            end
+            if #extremeScale > 0 then
+                table.sort(extremeScale, function(a, b) return getToolInfo(a).Scale > getToolInfo(b).Scale end)
+                return extremeScale[1]
+            end
+
+            -- 4. Fallback (Di bawah 2.0)
+            table.sort(currentCategoryItems, function(a, b) return getToolInfo(a).Scale > getToolInfo(b).Scale end)
+            return currentCategoryItems[1]
         end
     end
     return nil
 end
 
--- // WEBHOOK PAYLOADS // --
-local function sendDupeWebhook(beforeC, afterC, tool)
-    local info = getToolInfo(tool)
-    local payload = {
-        content = "🚀 **DUPE SUCCESS!**",
-        embeds = {{
-            title = "Auto Dupe Detection",
-            color = 65280,
-            fields = {
-                {name="User", value="||"..player.Name.."||", inline=false},
-                {name="Item", value=info.Name.." (Lvl "..info.Level..")", inline=false},
-                {name="Mutation", value=info.Mutation, inline=true},
-                {name="Inventory Sebelum", value=tostring(beforeC), inline=true},
-                {name="Inventory Sesudah", value=tostring(afterC), inline=true},
-                {name="Keuntungan", value="+"..tostring(afterC-beforeC), inline=true},
-            },
-            footer = {text="Dupe Monitor • "..os.date("%X")}
-        }}
+local function runSafePath()
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    for _, part in ipairs(char:GetDescendants()) do
+        if part:IsA("BasePart") then part.CanCollide = false end
+    end
+    local positions = {
+        Vector3.new(128, 3, -136),
+        Vector3.new(113, 43, -140),
+        Vector3.new(753, 34, -139),
+        Vector3.new(758, -3, -134),
+        Vector3.new(758, -3, 21)
     }
-    safeWebhook(webhook_dupe, payload)
+    for _, pos in ipairs(positions) do
+        local tween = TweenService:Create(hrp, TweenInfo.new(0.3, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
+        tween:Play()
+        tween.Completed:Wait()
+    end
 end
 
-local function sendInventoryReport(count)
-    local payload = {
-        content = "📊 **PERIODIC INVENTORY CHECK**",
-        embeds = {{
-            title = "Inventory Status (Every 10 Minutes)",
-            description = "Terdeteksi target Brainrot.",
-            color = 16776960,
-            fields = {
-                {name="Target", value="Bulbito / Burgerini", inline=true},
-                {name="Jumlah", value=tostring(count), inline=true},
-                {name="User", value=player.Name, inline=false},
-            },
-            footer = {text="Inventory Monitor • "..os.date("%X")}
-        }}
-    }
-    safeWebhook(webhook_inventory, payload)
-end
-
--- // MAIN LOOPS // --
-UIS.InputBegan:Connect(function(input, gp)
-    if not gp and input.KeyCode == Enum.KeyCode.P then
-        skipWait = true
-        setStatus("SKIPPING WAIT...")
-    end
-end)
-
-task.spawn(function()
+-- // CORE LOGIC // --
+local function startMainLoop()
     while true do
-        task.wait(600)
-        local total = countTargets()
-        if total >= 1 then sendInventoryReport(total) end
-    end
-end)
+        if getgenv().AutoRadioactive then
+            local target = findBestItem()
+            if target then
+                local machineNames = {"ATM", "Arcade", "Blackhole"}
+                local spawnMachinesFolder = workspace:FindFirstChild("SpawnMachines")
+             
+                if spawnMachinesFolder then
+                    local availableMachines = {}
+                    for _, mName in ipairs(machineNames) do
+                        local m = spawnMachinesFolder:FindFirstChild(mName)
+                        if m then table.insert(availableMachines, m) end
+                    end
 
-task.spawn(function()
-    while true do
-        if not getgenv().AutoRadioactive then 
-            setStatus("PAUSED")
-            task.wait(1)
-            continue 
-        end
+                    for i, currentMachine in ipairs(availableMachines) do
+                        if not getgenv().AutoRadioactive then break end
+                        
+                        local char = player.Character or player.CharacterAdded:Wait()
+                        local root = char:WaitForChild("HumanoidRootPart")
+                        local hum = char:WaitForChild("Humanoid")
+                        
+                        local info = getToolInfo(target)
+                        setStatus("Using: " .. info.Name .. " on " .. currentMachine.Name)
+                        runSafePath()
+                            
+                        local isProcessing = true
+                        local tpLoop = task.spawn(function()
+                            while isProcessing do
+                                if root then root.CFrame = CFrame.new(targetPosSpawn) end
+                                task.wait(0.1)
+                            end
+                        end)
 
-        local timer = waitTime
-        skipWait = false
-        while timer > 0 and not skipWait do
-            setStatus("Next Dupe: " .. math.floor(timer/60) .. "m " .. (timer%60) .. "s")
-            task.wait(1)
-            timer = timer - 1
-            if not getgenv().AutoRadioactive then break end
-        end
+                        hum:EquipTool(target)
+                        task.wait(0.3)
 
-        local char = player.Character
-        local root = char and char:FindFirstChild("HumanoidRootPart")
-        local hum = char and char:FindFirstChildOfClass("Humanoid")
+                        spawnRemote:InvokeServer("Deposit", currentMachine)
+                        task.wait(0.2)
+                        spawnRemote:InvokeServer("Combine", currentMachine)
+                        task.wait(0.2)
+                        spawnRemote:InvokeServer("Withdraw", currentMachine)
+                        task.wait(0.2)
 
-        if root and hum then
-            root.CFrame = CFrame.new(targetPosSpawn)
-            task.wait(2)
-            root.Anchored = true
-            
-            setStatus("Withdrawing...")
-            spawnRemote:InvokeServer("Withdraw", machinePath)
-            task.wait(2)
+                        isProcessing = false
+                        task.cancel(tpLoop)
 
-            local beforeCount = countTargets()
-            local targetItem = findItem("TARGET")
-            local commonItem = findItem("COMMON")
-
-            if targetItem and commonItem then
-                setStatus("Depositing: " .. getToolInfo(targetItem).Name)
-                
-                hum:EquipTool(targetItem)
-                task.wait(2)
-                spawnRemote:InvokeServer("Deposit", machinePath)
-                
-                unequipAll()
-                task.wait(2)
-                hum:EquipTool(commonItem)
-                task.wait(2)
-                spawnRemote:InvokeServer("Deposit", machinePath)
-                
-                task.wait(2)
-                setStatus("Combining...")
-                spawnRemote:InvokeServer("Combine", machinePath)
-                task.wait(5)
-
-                local afterCount = countTargets()
-                if afterCount > beforeCount then
-                    setStatus("✨ SUCCESS! ✨")
-                    sendDupeWebhook(beforeCount, afterCount, targetItem)
-                else
-                    setStatus("Fail: No Gain")
+                        -- Logic Reset Jika Ada Lebih dari 1 Mesin
+                        if #availableMachines > 1 and i < #availableMachines then
+                            setStatus("Resetting... Waiting 5s")
+                            char:BreakJoints()
+                            task.wait(5) -- Menunggu 5 detik sesuai permintaan
+                            player.CharacterAdded:Wait() -- Pastikan karakter hidup kembali
+                            task.wait(1)
+                            target = findBestItem() -- Ambil item lagi setelah respawn
+                            if not target then break end
+                        end
+                    end
                 end
+                setStatus("Cycle Done!")
             else
-                setStatus("Missing Items!")
+                setStatus("Inventory Empty / No Matches!")
             end
             
-            root.Anchored = false
+            -- Cooldown 30 Detik Setelah Semua Mesin Selesai
+            local timer = waitTime
+            skipWait = false
+            while timer > 0 and not skipWait and getgenv().AutoRadioactive do
+                setStatus("Cooldown: " .. timer .. "s")
+                task.wait(1)
+                timer = timer - 1
+            end
+        else
+            setStatus("PAUSED")
             task.wait(2)
         end
     end
+end
+
+UIS.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode.P then
+        skipWait = true
+    elseif input.KeyCode == Enum.KeyCode.LeftBracket then
+        getgenv().AutoRadioactive = not getgenv().AutoRadioactive
+    end
 end)
+
+task.spawn(startMainLoop)
