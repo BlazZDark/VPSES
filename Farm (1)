@@ -17,39 +17,39 @@ local MAX_SCALE_THRESHOLD = 2.99
 local PriorityConfig = {
     {
         Name = "Rubichetto Cubini",
-        Mutations = {"Gamer", "Lucky", "Money", "UFO","Radioactive", "Emerald", "None"}
+        Mutations = {"Lucky", "Money", "UFO","Radioactive", "Emerald", "None"}
     },
     {
         Name = "Freezeti Cobretti",
-        Mutations = {"Gamer", "Lucky", "Money", "UFO","Radioactive", "Emerald", "None"}
+        Mutations = {"Lucky", "Money", "UFO","Radioactive", "Emerald", "None"}
     },
     {
         Name = "Glacierello Infernetti",
-        Mutations = {"Gamer", "Lucky", "Money", "UFO","Radioactive", "Emerald", "None"}
-    },
-    {
-        Name = "Din Din Vaultero",
-        Mutations = {"Gamer", "Lucky", "Money", "UFO", "Radioactive", "None"}
+        Mutations = {"Lucky", "Money", "UFO","Radioactive", "Emerald", "None"}
     },
     {
         Name = "Galactio Fantasma",
-        Mutations = {"Gamer", "Lucky", "Money", "UFO", "Radioactive", "None"}
+        Mutations = {"Lucky", "Money", "UFO", "Radioactive", "None"}
+    },
+    {
+        Name = "Din Din Vaultero",
+        Mutations = {"Lucky", "Money", "UFO", "Radioactive", "None"}
     },
     {
         Name = "Strawberry Elephant",
-        Mutations = {"Gamer", "Lucky", "Money", "UFO", "Radioactive", "None"}
+        Mutations = {"Lucky", "Money", "UFO", "Radioactive", "None"}
     },
     {
         Name = "Bulbito Bandito Traktorito",
-        Mutations = {"Gamer", "Lucky", "Money", "UFO", "Radioactive", "None"}
+        Mutations = {"Lucky", "Money", "UFO", "Radioactive", "None"}
     },
     {
         Name = "Burgerini Bearini",
-        Mutations = {"Gamer", "Lucky", "Money", "UFO", "Radioactive", "None"}
+        Mutations = {"Lucky", "Money", "UFO", "Radioactive", "None"}
     },
     {
         Name = "Martino Gravitino",
-        Mutations = {"Gamer", "Lucky", "Money", "UFO", "Radioactive", "None"}
+        Mutations = {"Lucky", "Money", "UFO", "Radioactive", "None"}
     }
 }
 
