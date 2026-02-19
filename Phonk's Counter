@@ -1,0 +1,96 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Phonk Shop | Advanced Item Counter",
+   LoadingTitle = "Initializing Tracker...",
+   LoadingSubtitle = "by Phonk's Shop",
+   ConfigurationSaving = {
+      Enabled = false
+   },
+   KeySystem = false,
+   Keybind = "K" -- Menetapkan K sebagai tombol resmi untuk Show/Hide
+})
+
+local MainTab = Window:CreateTab("Inventory", 4483362458)
+local InfoParagraph = MainTab:CreateParagraph({Title = "Pohonk Item Counter [K to Toggle]", Content = "Mencari item..."})
+local TotalLabel = MainTab:CreateLabel("Total Inventory: 0")
+
+local function updateCounter()
+    local player = game.Players.LocalPlayer
+    local backpack = player:FindFirstChild("Backpack")
+    if not backpack then return end
+
+    local inventoryData = {}
+    local totalAllItems = 0
+
+    for _, item in ipairs(backpack:GetChildren()) do
+        local brainrotName = item:GetAttribute("BrainrotName")
+        
+        if brainrotName then
+            local scale = item:GetAttribute("Scale") or 1
+            local category = "⚪ Regular"
+            
+            -- Logika Scale sesuai permintaan: 1-1.2 Regular, 1.3-1.7 Big
+            if scale >= 1.8 then
+                category = "🔴 Colossal"
+            elseif scale >= 1.3 and scale <= 1.7 then
+                category = "🟠 Big"
+            elseif scale >= 1 and scale <= 1.2 then
+                category = "⚪ Regular"
+            elseif scale < 1 then
+                category = "🔵 Mini"
+            end
+
+            if not inventoryData[brainrotName] then
+                inventoryData[brainrotName] = {
+                    ["Total"] = 0,
+                    ["Details"] = {}
+                }
+            end
+
+            inventoryData[brainrotName]["Total"] = inventoryData[brainrotName]["Total"] + 1
+            inventoryData[brainrotName]["Details"][category] = (inventoryData[brainrotName]["Details"][category] or 0) + 1
+            totalAllItems = totalAllItems + 1
+        end
+    end
+
+    local finalContent = ""
+    for itemName, data in pairs(inventoryData) do
+        finalContent = finalContent .. "━━━━━━━━━━━━━━━\n"
+        finalContent = finalContent .. "📦 " .. itemName .. ": " .. data["Total"] .. "\n"
+        
+        for sizeName, count in pairs(data["Details"]) do
+            finalContent = finalContent .. "      " .. sizeName .. ": " .. count .. "\n"
+        end
+        finalContent = finalContent .. "\n"
+    end
+
+    if finalContent == "" then
+        finalContent = "Tidak ada item ditemukan."
+    end
+
+    InfoParagraph:Set({
+        Title = "Pohonk Item Counter [K to Toggle]", 
+        Content = finalContent
+    })
+    TotalLabel:Set("Total Keseluruhan: " .. totalAllItems)
+end
+
+-- Section Info
+MainTab:CreateSection("Script Source")
+MainTab:CreateLabel("Source: Phonk's Shop")
+
+-- Loop Update setiap 2 detik
+task.spawn(function()
+    while true do
+        updateCounter()
+        task.wait(2)
+    end
+end)
+
+Rayfield:Notify({
+   Title = "Counter Aktif",
+   Content = "Keybind telah ditetapkan ke 'K' untuk Show/Hide UI.",
+   Duration = 5,
+   Image = 4483362458,
+})
