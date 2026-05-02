@@ -1,0 +1,195 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- // Services & Remotes // --
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+local networkFolder = game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Packages"):WaitForChild("Network")
+local giftRequestRemote = networkFolder:WaitForChild("rev_GiftRequest")
+
+-- // Variables // --
+local TargetPlayerName = ""
+local TargetItemName = "" 
+local StopThreshold = 0
+local GiftingActive = false
+local InventoryConnections = {}
+
+-- // Helper Functions // --
+local function isTradeable(tool)
+    if tool and tool:IsA("Tool") then
+        return tool:GetAttribute("guid") or tool:GetAttribute("GUID")
+    end
+    return false
+end
+
+local function shuffleTable(tbl)
+    for i = #tbl, 2, -1 do
+        local j = math.random(i)
+        tbl[i], tbl[j] = tbl[j], tbl[i]
+    end
+    return tbl
+end
+
+local function getPlayerList()
+    local tbl = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= localPlayer then table.insert(tbl, p.Name) end
+    end
+    return tbl
+end
+
+local function getInventoryList()
+    local items = {"[SEND ANYTHING]"}
+    local backpack = localPlayer:FindFirstChild("Backpack")
+    
+    if backpack then
+        for _, tool in ipairs(backpack:GetChildren()) do
+            if tool:IsA("Tool") and not table.find(items, tool.Name) then
+                table.insert(items, tool.Name)
+            end
+        end
+    end
+    return items
+end
+
+-- // Rayfield Window // --
+local Window = Rayfield:CreateWindow({
+   Name = "Made by Phonk Shop",
+   LoadingTitle = "Phonk Shop Loader",
+   LoadingSubtitle = "Smart Gifter System",
+   ConfigurationSaving = { Enabled = false },
+   KeySystem = false
+})
+
+local Tab = Window:CreateTab("Gifter & Inventory", 4483362458)
+
+-- // UI Elements // --
+local InventoryLabel = Tab:CreateParagraph({Title = "🎒 Inventory Status", Content = "Scanning..."})
+
+local PlayerDropdown = Tab:CreateDropdown({
+   Name = "Select Receiver",
+   Options = getPlayerList(),
+   CurrentOption = {""},
+   MultipleOptions = false,
+   Callback = function(Option)
+      TargetPlayerName = Option[1]
+   end,
+})
+
+local ItemDropdown = Tab:CreateDropdown({
+   Name = "Select Item (Optional)",
+   Options = getInventoryList(),
+   CurrentOption = {"[SEND ANYTHING]"},
+   MultipleOptions = false,
+   Callback = function(Option)
+      TargetItemName = (Option[1] == "[SEND ANYTHING]") and "" or Option[1]
+   end,
+})
+
+Tab:CreateButton({
+   Name = "Refresh Lists",
+   Callback = function()
+      PlayerDropdown:Refresh(getPlayerList())
+      ItemDropdown:Refresh(getInventoryList())
+   end,
+})
+
+Tab:CreateInput({
+   Name = "Amount to Send",
+   PlaceholderText = "E.g. 10",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text)
+      StopThreshold = tonumber(Text) or 0
+   end,
+})
+
+-- // Inventory Tracking Logic // --
+local function updateInventoryDisplay()
+    local inventoryData = {}
+    local totalCount = 0
+    local backpack = localPlayer:FindFirstChild("Backpack")
+    
+    if backpack then
+        for _, item in pairs(backpack:GetChildren()) do
+            if item:IsA("Tool") then
+                inventoryData[item.Name] = (inventoryData[item.Name] or 0) + 1
+                totalCount = totalCount + 1
+            end
+        end
+    end
+
+    local displayString = "Total Tradeable: " .. totalCount .. "\n"
+    for itemName, amount in pairs(inventoryData) do
+        displayString = displayString .. string.format("\n• %s: x%d", itemName, amount)
+    end
+    InventoryLabel:Set({Title = "🎒 Inventory Status", Content = displayString})
+end
+
+-- // MAIN LOGIC // --
+Tab:CreateButton({
+   Name = "START GIFTING",
+   Callback = function()
+      if GiftingActive then return end
+      local target = Players:FindFirstChild(TargetPlayerName)
+      
+      if not target or StopThreshold <= 0 then
+          Rayfield:Notify({Title = "Error", Content = "Setup target and amount!", Duration = 3})
+          return
+      end
+
+      GiftingActive = true
+      local itemsSent = 0
+      local backpack = localPlayer:WaitForChild("Backpack")
+      local itemsToProcess = {}
+
+      -- Gather items
+      for _, tool in ipairs(backpack:GetChildren()) do
+          if isTradeable(tool) then
+              if TargetItemName == "" or tool.Name == TargetItemName then
+                  table.insert(itemsToProcess, tool)
+              end
+          end
+      end
+
+      -- Auto-randomize if no specific item is chosen
+      if TargetItemName == "" then
+          shuffleTable(itemsToProcess)
+          Rayfield:Notify({Title = "Randomizing", Content = "Sending random items from inventory...", Duration = 2})
+      end
+
+      for _, tool in ipairs(itemsToProcess) do
+          if itemsSent >= StopThreshold or not GiftingActive then break end
+          
+          local character = localPlayer.Character
+          if character and character:FindFirstChild("Humanoid") then
+              character.Humanoid:EquipTool(tool)
+              task.wait(0.1)
+              giftRequestRemote:FireServer(target.UserId)
+              
+              local timer = 0
+              repeat task.wait(0.1) timer = timer + 0.1 until not character:FindFirstChild(tool.Name) or timer > 3
+              itemsSent = itemsSent + 1
+          end
+      end
+
+      GiftingActive = false
+      Rayfield:Notify({Title = "Finished", Content = "Sent " .. itemsSent .. " items.", Duration = 5})
+   end,
+})
+
+Tab:CreateButton({
+   Name = "FORCE STOP",
+   Callback = function()
+      GiftingActive = false
+      Rayfield:Notify({Title = "Stopped", Content = "Gifter has been disabled.", Duration = 3})
+   end,
+})
+
+-- Initialize
+local function connect()
+    local backpack = localPlayer:WaitForChild("Backpack")
+    table.insert(InventoryConnections, backpack.ChildAdded:Connect(updateInventoryDisplay))
+    table.insert(InventoryConnections, backpack.ChildRemoved:Connect(updateInventoryDisplay))
+    updateInventoryDisplay()
+end
+
+connect()
